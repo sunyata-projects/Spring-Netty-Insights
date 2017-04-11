@@ -40,7 +40,8 @@ public class JacksonEncoder implements Encoder {
     public void encode(Object object, Type bodyType, RequestTemplate template) {
         try {
             JavaType javaType = mapper.getTypeFactory().constructType(bodyType);
-            template.body(mapper.writerFor(javaType).writeValueAsString(object));
+            String string = mapper.writerFor(javaType).writeValueAsString(object);
+            template.body(string);
         } catch (JsonProcessingException e) {
             throw new EncodeException(e.getMessage(), e);
         } catch (Exception ex) {

@@ -21,22 +21,30 @@
 package org.sunyata.quark.basic;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by leo on 16/12/11.
  */
 public class QuarkComponentOptions implements Serializable {
-    private Map<String, Object> maps = new HashMap<>();
+    public ConcurrentMap<String, Object> getParameters() {
+        return parameters;
+    }
 
+    public QuarkComponentOptions setParameters(ConcurrentMap<String, Object> parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    private ConcurrentMap<String, Object> parameters = new ConcurrentHashMap<>();
     public QuarkComponentOptions put(String key, Object value) {
-        maps.put(key, value);
+        parameters.put(key, value);
         return this;
     }
 
     public Object getValue(String key, String defaultValue) {
-        return maps.getOrDefault(key, defaultValue);
+        return parameters.getOrDefault(key, defaultValue);
     }
 
     public QuarkComponentOptions() {
