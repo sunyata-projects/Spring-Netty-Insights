@@ -18,7 +18,7 @@
  *
  */
 
-package org.sunyata.quark.embed.springcloud.controller;
+package org.sunyata.quark.provider.springcloud.controller;
 
 /**
  * Created by leo on 17/3/30.

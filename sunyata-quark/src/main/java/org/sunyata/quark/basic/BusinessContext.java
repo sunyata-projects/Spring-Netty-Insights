@@ -20,34 +20,50 @@
 
 package org.sunyata.quark.basic;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
 import org.sunyata.quark.store.BusinessComponentInstance;
+
+import java.io.Serializable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by leo on 16/12/14.
  */
-public class BusinessContext  {
+@JsonSerialize()
+public class BusinessContext implements Serializable {
 
     private AbstractBusinessComponent businessComponent;
     private BusinessModeTypeEnum businessMode;
     private boolean primary;
-
-    //    private static final ConcurrentMap<String, Object> parameters = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, Object> parameters = new ConcurrentHashMap<>();
     private String serialNo;
     private BusinessComponentInstance instance;
     private QuarkComponentDescriptor currentQuarkDescriptor;
+    private String currentQuarkSerialNo;
 
+    public BusinessSerializableContext generateSerializableContext() {
+        BusinessSerializableContext context = new BusinessSerializableContext();
+        context.setBusinessMode(this.getBusinessMode());
+        context.setPrimary(this.isPrimary());
+        context.setParameters(this.getParameters());
+        context.setSerialNo(this.getSerialNo());
+        context.setInstance(this.getInstance());
+        context.setCurrentQuarkDescriptor(this.getCurrentQuarkDescriptor().setClazz(null));
+        context.setCurrentQuarkSerialNo(this.getCurrentQuarkSerialNo());
+        return context;
+    }
 
     public static BusinessContext getContext(String serialNo, AbstractBusinessComponent abstractBusinessComponent,
                                              BusinessComponentInstance instance)
             throws IllegalAccessException, InstantiationException {
 
-//        BusinessInstanceLoader bestService = ServiceLocator.getBestService(BusinessInstanceLoader
-//                .class);
-//        BusinessComponentInstance instance = bestService.load(serialNo);
-//        instance.readOriginalHashCode();
-        return new BusinessContext().setInstance(instance).setBusinessComponent(abstractBusinessComponent).setSerialNo
+        BusinessContext businessContext = new BusinessContext().setInstance(instance).setBusinessComponent
+                (abstractBusinessComponent).setSerialNo
                 (serialNo);
+        businessContext.getParameters().put("test", "test");
+        return businessContext;
     }
 
     public BusinessModeTypeEnum getBusinessMode() {
@@ -101,5 +117,22 @@ public class BusinessContext  {
 
     public QuarkComponentDescriptor getCurrentQuarkDescriptor() {
         return currentQuarkDescriptor;
+    }
+
+    public ConcurrentMap<String, Object> getParameters() {
+        return parameters;
+    }
+
+    public BusinessContext setParameters(ConcurrentMap<String, Object> parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    public void setCurrentQuarkSerialNo(String currentQuarkSerialNo) {
+        this.currentQuarkSerialNo = currentQuarkSerialNo;
+    }
+
+    public String getCurrentQuarkSerialNo() {
+        return currentQuarkSerialNo;
     }
 }

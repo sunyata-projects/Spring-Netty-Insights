@@ -35,15 +35,15 @@ import java.sql.Timestamp;
  */
 public class BusinessInstanceFactory {
     public static QuarkComponentLog createQuarkComponentLog(String businSerialNo, String serialNo, String
-            businItemCode, String version, String businItemName, ProcessResultTypeEnum processResult, String notes,
+            quarkName, String version, String quarkFriendlyName, ProcessResultTypeEnum processResult, String notes,
                                                             String processResultString) {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         return new QuarkComponentLog()
                 .setBusinSerialNo(businSerialNo)
                 .setSerialNo(serialNo)
-                .setBusinItemCode(businItemCode)
+                .setQuarkName(quarkName)
                 .setVersion(version)
-                .setBusinItemName(businItemName)
+                .setQuarkFriendlyName(quarkFriendlyName)
                 .setProcessResult(processResult)
                 .setNotes(notes)
                 .setProcessResultString(processResultString)
@@ -59,8 +59,8 @@ public class BusinessInstanceFactory {
 
         BusinessComponentInstance result = new BusinessComponentInstance()
                 .setSerialNo(serialNo)
-                .setBusinName(businessComponentDescriptor.getBisinName())
-                .setBusinCode(businessComponentDescriptor.getBusinCode())
+                .setBusinFriendlyName(businessComponentDescriptor.getBisinFriendlyName())
+                .setBusinName(businessComponentDescriptor.getBusinName())
                 .setDescription(businessComponentDescriptor.getDescription())
                 .setVersion(businessComponentDescriptor.getVersion())
                 .setCreateDateTime(timestamp)
@@ -77,8 +77,8 @@ public class BusinessInstanceFactory {
                 QuarkComponentInstance item = new QuarkComponentInstance();
                 item.setCreateDateTime(timestamp)
                         .setVersion(quarkComponentDescriptor.getVersion())
-                        .setBusinItemCode(quarkComponentDescriptor.getBusinItemCode())
-                        .setBusinItemName(quarkComponentDescriptor.getBusinItemName())
+                        .setQuarkName(quarkComponentDescriptor.getQuarkName())
+                        .setQuarkFriendlyName(quarkComponentDescriptor.getQuarkFriendlyName())
 //                        .setCanContinue(CanContinueTypeEnum.CanContinue)
                         .setExecuteTimes(0)
                         .setProcessResult(ProcessResultTypeEnum.I)

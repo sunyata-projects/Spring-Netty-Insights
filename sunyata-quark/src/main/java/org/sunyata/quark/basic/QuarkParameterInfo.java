@@ -26,6 +26,8 @@ import java.io.Serializable;
  * Created by leo on 17/3/28.
  */
 public class QuarkParameterInfo implements Serializable {
+    private String quarkSerialNo;
+
     public void validate() {
 
     }
@@ -36,6 +38,7 @@ public class QuarkParameterInfo implements Serializable {
 
     public QuarkParameterInfo setBusinessContext(BusinessContext businessContext) {
         this.businessContext = businessContext;
+        this.setQuarkSerialNo(businessContext.getCurrentQuarkSerialNo());
         return this;
     }
 
@@ -43,5 +46,13 @@ public class QuarkParameterInfo implements Serializable {
 
     public QuarkParameterInfo parse(BusinessContext context) throws Exception {
         return new QuarkParameterInfo().setBusinessContext(context);
+    }
+
+    public void setQuarkSerialNo(String quarkSerialNo) {
+        this.quarkSerialNo = quarkSerialNo;
+    }
+
+    public String getQuarkSerialNo() {
+        return quarkSerialNo;
     }
 }

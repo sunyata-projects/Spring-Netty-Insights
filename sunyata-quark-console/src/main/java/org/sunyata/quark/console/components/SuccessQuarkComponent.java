@@ -29,7 +29,7 @@ import org.sunyata.quark.stereotype.QuarkComponent;
 /**
  * Created by leo on 16/12/15.
  */
-@QuarkComponent(businItemCode = "SuccessQuarkComponent", businItemName = "SuccessQuarkComponent", version = "1.0")
+@QuarkComponent(quarkName = "SuccessQuarkComponent", quarkFriendlyName = "SuccessQuarkComponent", version = "1.0")
 public class SuccessQuarkComponent extends AbstractQuarkComponent {
 
     public SuccessQuarkComponent() {

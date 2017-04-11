@@ -36,7 +36,7 @@ public interface BusinessManager {
 
     void initialize() throws Exception;
 
-    void create(String serialNo, String businCode, String parameterString) throws Exception;
+    void create(String serialNo, String businName, String parameterString) throws Exception;
 
     void run(String serialNo) throws Exception;
 

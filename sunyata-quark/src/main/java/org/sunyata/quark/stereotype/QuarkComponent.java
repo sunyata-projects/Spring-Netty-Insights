@@ -36,7 +36,7 @@ public @interface QuarkComponent {
 
     String version() default "";
 
-    String businItemCode() default "";//业务标识符ccop.withdraw
+    String quarkName() default "";//业务标识符ccop.withdraw
 
-    String businItemName() default "";//业务名称
+    String quarkFriendlyName() default "";//业务名称
 }

@@ -58,8 +58,8 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
         if (annotation != null) {
             return new BusinessComponentDescriptor()
                     .setVersion(annotation.version())
-                    .setBisinName(annotation.bisinName())
-                    .setBusinCode(annotation.businCode())
+                    .setBisinFriendlyName(annotation.bisinFriendlyName())
+                    .setBusinName(annotation.businName())
                     .setDescription(annotation.description())
                     .setCompensationSwitch(annotation.compensationSwitch());
         } else {
@@ -108,7 +108,7 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
             quarkComponentInstance = flow.selectQuarkComponentInstance(businessContext);
             if (quarkComponentInstance != null) {
                 quarkComponentDescriptor = flow
-                        .getQuarkComponentDescriptor(quarkComponentInstance.getBusinItemCode(),
+                        .getQuarkComponentDescriptor(quarkComponentInstance.getQuarkName(),
                                 quarkComponentInstance.getOrderby(), quarkComponentInstance.getSubOrder());
                 if (quarkComponentDescriptor == null) {
                     throw new Exception("can not found quarkComponent");
@@ -116,6 +116,7 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
                 AbstractQuarkComponent quarkComponent = ServiceLocator.getLocator().getService
                         (quarkComponentDescriptor.getClazz());
                 businessContext.setCurrentQuarkDescriptor(quarkComponentDescriptor);
+                businessContext.setCurrentQuarkSerialNo(quarkComponentInstance.getSerialNo());
                 result = quarkComponent.run(businessContext);
 
             } else {

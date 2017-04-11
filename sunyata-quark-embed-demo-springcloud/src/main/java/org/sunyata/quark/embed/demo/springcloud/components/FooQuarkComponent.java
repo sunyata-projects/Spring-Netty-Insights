@@ -31,7 +31,7 @@ import org.sunyata.quark.stereotype.QuarkComponent;
  * Created by leo on 16/12/15.
  */
 @Component
-@QuarkComponent(businItemCode = "fooAtomicComponent", businItemName = "fooAtomicComponent", version = "1.0")
+@QuarkComponent(quarkName = "fooAtomicComponent", quarkFriendlyName = "fooAtomicComponent", version = "1.0")
 public class FooQuarkComponent extends AbstractQuarkComponent {
 
 
@@ -43,13 +43,13 @@ public class FooQuarkComponent extends AbstractQuarkComponent {
         return null;
     }
     @Override
-    protected ProcessResult execute(QuarkParameterInfo parameterInfo) {
+    public ProcessResult execute(QuarkParameterInfo parameterInfo) {
         System.out.println("hello world" + Thread.currentThread().getName());
         return ProcessResult.r();
     }
 
     @Override
-    protected ProcessResult compensate(QuarkParameterInfo parameterInfo) {
+    public ProcessResult compensate(QuarkParameterInfo parameterInfo) {
         return null;
     }
 

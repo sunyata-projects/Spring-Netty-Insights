@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.sunyata.quark.BusinessManager;
 import org.sunyata.quark.descriptor.BusinessComponentDescriptor;
+import org.sunyata.quark.embed.springcloud.JsonResponseResult;
 import org.sunyata.quark.store.BusinessComponentInstance;
 import org.sunyata.quark.store.BusinessInstanceLoader;
 
@@ -59,9 +60,9 @@ public class BusinessController {
     }
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public JsonResponseResult create(String serialNo, String businCode, String parameterString) throws Exception {
+    public JsonResponseResult create(String serialNo, String businName, String parameterString) throws Exception {
         try {
-            businessManager.create(serialNo, businCode, parameterString);
+            businessManager.create(serialNo, businName, parameterString);
             return JsonResponseResult.Success();
         } catch (Exception ex) {
             logger.error(ExceptionUtils.getStackTrace(ex));

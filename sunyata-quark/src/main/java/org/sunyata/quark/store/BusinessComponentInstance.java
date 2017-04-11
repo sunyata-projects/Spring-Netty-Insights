@@ -102,12 +102,12 @@ public class BusinessComponentInstance implements Serializable {
         return this;
     }
 
-    public String getBusinCode() {
-        return businCode;
+    public String getBusinName() {
+        return businName;
     }
 
-    public BusinessComponentInstance setBusinCode(String businCode) {
-        this.businCode = businCode;
+    public BusinessComponentInstance setBusinName(String businName) {
+        this.businName = businName;
         return this;
     }
 
@@ -129,12 +129,12 @@ public class BusinessComponentInstance implements Serializable {
         return this;
     }
 
-    public String getBusinName() {
-        return businName;
+    public String getBusinFriendlyName() {
+        return businFriendlyName;
     }
 
-    public BusinessComponentInstance setBusinName(String businName) {
-        this.businName = businName;
+    public BusinessComponentInstance setBusinFriendlyName(String businFriendlyName) {
+        this.businFriendlyName = businFriendlyName;
         return this;
     }
 
@@ -174,12 +174,12 @@ public class BusinessComponentInstance implements Serializable {
     /**
      * 业务名称
      */
-    private String businName;
+    private String businFriendlyName;
 
     /**
      * 业务编码,相同的编码代表同一个业务
      */
-    private String businCode;
+    private String businName;
 
     /**
      * 业务描述
@@ -275,8 +275,8 @@ public class BusinessComponentInstance implements Serializable {
 //        Timestamp now = new Timestamp(System.currentTimeMillis());
 //        BusinessComponentInstance result = new BusinessComponentInstance()
 //                .setSerialNo(serialNo)
-//                .setBusinName(desc.getBisinName())
-//                .setBusinCode(desc.getBusinCode())
+//                .setBusinFriendlyName(desc.getBisinFriendlyName())
+//                .setBusinName(desc.getBusinName())
 //                .setDescription(desc.getDescription())
 //                .setVersion(desc.getVersion())
 //                .setCreateDateTime(now)

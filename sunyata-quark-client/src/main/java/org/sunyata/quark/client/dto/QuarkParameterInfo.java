@@ -27,7 +27,7 @@ import java.io.Serializable;
  */
 public class QuarkParameterInfo implements Serializable {
     private String serialNo;
-    private String businCode;
+    private String businName;
 
     public String getSerialNo() {
         return serialNo;
@@ -38,12 +38,12 @@ public class QuarkParameterInfo implements Serializable {
         return this;
     }
 
-    public String getBusinCode() {
-        return businCode;
+    public String getBusinName() {
+        return businName;
     }
 
-    public QuarkParameterInfo setBusinCode(String businCode) {
-        this.businCode = businCode;
+    public QuarkParameterInfo setBusinName(String businName) {
+        this.businName = businName;
         return this;
     }
 }

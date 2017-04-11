@@ -32,7 +32,7 @@ import org.sunyata.quark.stereotype.QuarkComponent;
  * Created by leo on 16/12/15.
  */
 @Component
-@QuarkComponent(businItemCode = "barAtomicComponent", businItemName = "barAtomicComponent", version = "1.0")
+@QuarkComponent(quarkName = "BarQuarkComponent", quarkFriendlyName = "BarQuarkComponent", version = "1.0")
 public class BarQuarkComponent extends AbstractQuarkComponent<BarQuarkComponent.BarQuarkParameterInfo> {
     class BarQuarkParameterInfo extends QuarkParameterInfo {
         public String getField1() {
@@ -46,7 +46,7 @@ public class BarQuarkComponent extends AbstractQuarkComponent<BarQuarkComponent.
 
         @Override
         public QuarkParameterInfo parse(BusinessContext context) throws Exception {
-//            if (context.getBusinessComponent().getBusinessComponentDescriptor().getBusinCode() == "") {
+//            if (context.getBusinessComponent().getBusinessComponentDescriptor().getBusinName() == "") {
             String parameterString = context.getInstance().getParameterString();
             JsonObject jsonObject = new JsonObject(parameterString);
             String field1 = jsonObject.getString("field1");
@@ -65,14 +65,14 @@ public class BarQuarkComponent extends AbstractQuarkComponent<BarQuarkComponent.
     }
 
     @Override
-    protected ProcessResult execute(BarQuarkParameterInfo parameterInfo) {
+    public ProcessResult execute(BarQuarkParameterInfo parameterInfo) {
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
         return ProcessResult.e();
     }
 
     @Override
-    protected ProcessResult compensate(BarQuarkParameterInfo parameterInfo) {
+    public ProcessResult compensate(BarQuarkParameterInfo parameterInfo) {
         return null;
     }
 

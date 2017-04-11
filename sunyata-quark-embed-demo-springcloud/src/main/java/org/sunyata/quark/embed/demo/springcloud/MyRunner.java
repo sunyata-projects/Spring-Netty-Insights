@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.sunyata.quark.BusinessManager;
 import org.sunyata.quark.basic.QuarkParameterInfo;
 import org.sunyata.quark.json.Json;
@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by leo on 17/3/15.
  */
-//@Component
+@Component
 public class MyRunner implements CommandLineRunner {
     Logger logger = LoggerFactory.getLogger(MyRunner.class);
     @Autowired
@@ -61,7 +61,7 @@ public class MyRunner implements CommandLineRunner {
         for (int i = 0; i < 1; i++) {
             String s3 = String.valueOf(worker.nextId());
             String encode = Json.encode(new QuarkParameterInfo());
-            businessManager.create(s3, "ParallelBusinessComponent", encode);
+            businessManager.create(s3, "SingleBusinessComponent", encode);
             businessManager.run(s3);
         }
 
@@ -70,9 +70,9 @@ public class MyRunner implements CommandLineRunner {
 
     }
 
-    @Scheduled(fixedRate = 5000)
-    public void retryBusiness() throws Exception {
-        businessManager.retry();
-//        logger.info("The time is now {}", dateFormat.format(new Date()));
-    }
+//    @Scheduled(fixedRate = 5000)
+//    public void retryBusiness() throws Exception {
+//        businessManager.retry();
+////        logger.info("The time is now {}", dateFormat.format(new Date()));
+//    }
 }

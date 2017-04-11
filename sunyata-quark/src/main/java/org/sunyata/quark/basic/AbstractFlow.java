@@ -133,7 +133,7 @@ public abstract class AbstractFlow implements Flow {
         while (iterator.hasNext()) {
             MutltipleQuarkComponentDescriptor next = iterator.next();
             QuarkComponentDescriptor descriptor = next.getItems().stream().filter(p ->
-                    p.getBusinItemCode().equals(code) && Objects.equals(p.getOrder(),
+                    p.getQuarkName().equals(code) && Objects.equals(p.getOrder(),
                             order) && Objects.equals(p.getSubOrder(), subOrder)).findFirst().orElse(null);
             if (descriptor != null) {
                 return descriptor;
@@ -193,7 +193,7 @@ public abstract class AbstractFlow implements Flow {
         //第一个r
         QuarkComponentInstance instance = sortedStream.filter(p -> p.getProcessResult() == ProcessResultTypeEnum.R
                 && (p.getExecuteTimes() == null ? 0 : p.getExecuteTimes()) < getQuarkComponentDescriptor(p
-                .getBusinItemCode(), p.getOrderby(), p.getSubOrder()).getOptions().getRetryLimitTimes()).findFirst()
+                .getQuarkName(), p.getOrderby(), p.getSubOrder()).getOptions().getRetryLimitTimes()).findFirst()
                 .orElse(null);
         return instance;
     }

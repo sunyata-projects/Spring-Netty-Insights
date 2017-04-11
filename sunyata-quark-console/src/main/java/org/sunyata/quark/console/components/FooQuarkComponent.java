@@ -28,7 +28,7 @@ import org.sunyata.quark.stereotype.QuarkComponent;
 /**
  * Created by leo on 16/12/15.
  */
-@QuarkComponent(businItemCode = "fooAtomicComponent", businItemName = "fooAtomicComponent", version = "1.0")
+@QuarkComponent(quarkName = "fooAtomicComponent", quarkFriendlyName = "fooAtomicComponent", version = "1.0")
 public class FooQuarkComponent extends AbstractQuarkComponent {
 
 

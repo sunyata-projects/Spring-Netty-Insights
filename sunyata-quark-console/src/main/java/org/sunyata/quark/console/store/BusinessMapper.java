@@ -32,16 +32,16 @@ import java.util.List;
  */
 @Mapper
 public interface BusinessMapper {
-    @Insert("INSERT INTO BusinessComponent(serialNo, businCode,businName,version,parameterString," +
+    @Insert("INSERT INTO BusinessComponent(serialNo, businName,businFriendlyName,version,parameterString," +
             "businStatus,canContinue,createDateTime,updateDateTime,needToRetry,businessMode) " +
-            "VALUES(#{serialNo}, #{businCode},#{businName},#{version},#{parameterString},#{businStatus}," +
+            "VALUES(#{serialNo}, #{businName},#{businFriendlyName},#{version},#{parameterString},#{businStatus}," +
             "#{canContinue},#{createDateTime},#{updateDateTime},#{needToRetry},#{businessMode})")
     int insertByBusinessComponent(BusinessComponentInstance businessComponent);
 
 
-    @Insert("INSERT INTO QuarkComponent(serialNo, businSerialNo,businItemCode,businItemName,version," +
+    @Insert("INSERT INTO QuarkComponent(serialNo, businSerialNo,quarkName,quarkFriendlyName,version," +
             "createDateTime, orderby, subOrder, processResult, continueType) " +
-            "VALUES(#{serialNo}, #{businSerialNo},#{businItemCode},#{businItemName},#{version}," +
+            "VALUES(#{serialNo}, #{businSerialNo},#{quarkName},#{quarkFriendlyName},#{version}," +
             "#{createDateTime}," +
             "#{orderby},#{subOrder},#{processResult},#{continueType})")
     int insertByAtomicComponent(QuarkComponentInstance atomicComponent);
@@ -63,9 +63,9 @@ public interface BusinessMapper {
     @Select("SELECT * FROM QuarkComponent WHERE businSerialNo = #{serialNo}")
     List<QuarkComponentInstance> findAtomicComponentInstances(@Param("serialNo") String serialNo);
 
-    @Insert("INSERT INTO QuarkComponentLog(serialNo,businSerialNo,businItemCode,businItemName,version," +
+    @Insert("INSERT INTO QuarkComponentLog(serialNo,businSerialNo,quarkName,quarkFriendlyName,version," +
             "createDateTime,processResult,notes,processResultString) " +
-            "VALUES(#{serialNo}, #{businSerialNo},#{businItemCode},#{businItemName},#{version}," +
+            "VALUES(#{serialNo}, #{businSerialNo},#{quarkName},#{quarkFriendlyName},#{version}," +
             "#{createDateTime}," +
             "#{processResult},#{notes},#{processResultString})")
     void insertByComponentLog(QuarkComponentLog quarkComponentLog);

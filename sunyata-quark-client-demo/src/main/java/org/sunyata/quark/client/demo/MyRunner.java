@@ -46,7 +46,7 @@ public class MyRunner implements CommandLineRunner {
         JsonResponseResult<List<BusinessComponentDescriptor>> components = quarkClient.components();
         if (components.getCode() == 0) {
             for (BusinessComponentDescriptor bcd : components.getResponse()) {
-                logger.info(bcd.getBisinName());
+                logger.info(bcd.getBisinFriendlyName());
             }
         }
         IdWorker idWorker = new IdWorker(0, 0);

@@ -28,7 +28,7 @@ import org.sunyata.quark.stereotype.QuarkComponent;
 /**
  * Created by leo on 16/12/15.
  */
-@QuarkComponent(businItemCode = "RetryQuarkComponent", businItemName = "RetryQuarkComponent", version = "1.0")
+@QuarkComponent(quarkName = "RetryQuarkComponent", quarkFriendlyName = "RetryQuarkComponent", version = "1.0")
 public class RetryQuarkComponent extends AbstractQuarkComponent {
 
     

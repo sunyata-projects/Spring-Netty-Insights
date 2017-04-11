@@ -33,7 +33,7 @@ import java.util.List;
 public interface QuarkClient {
 
 
-    JsonResponseResult create(String serialNo, String businCode, String parameterString);
+    JsonResponseResult create(String serialNo, String businName, String parameterString);
 
     JsonResponseResult<List<BusinessComponentDescriptor>> components();
 

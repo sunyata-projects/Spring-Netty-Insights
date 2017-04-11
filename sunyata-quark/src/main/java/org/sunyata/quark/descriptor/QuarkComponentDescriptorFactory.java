@@ -34,8 +34,8 @@ public class QuarkComponentDescriptorFactory {
             return new QuarkComponentDescriptor()
                     .setClazz(clazz)
                     .setVersion(annotation.version())
-                    .setBusinItemCode(annotation.businItemCode())
-                    .setBusinItemName(annotation.businItemName());
+                    .setQuarkName(annotation.quarkName())
+                    .setQuarkFriendlyName(annotation.quarkFriendlyName());
             //T service = ServiceLocator.getLocator().getService(clazz);
         } else {
             throw new Exception("业务组件没有定义标注");

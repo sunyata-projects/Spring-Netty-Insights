@@ -45,18 +45,18 @@ public class MultipleThreadBusinessManager extends AbstractBusinessManager {
     }
 
     @Override
-    public void create(String serialNo, String businCode, String parameterString) throws Exception {
+    public void create(String serialNo, String businName, String parameterString) throws Exception {
         executorService.submit((Runnable) () -> {
             try {
-                internalCreate(serialNo, businCode, parameterString);
+                internalCreate(serialNo, businName, parameterString);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).get();
     }
 
-    private void internalCreate(String serialNo, String businCode, String parameterString) throws Exception {
-        super.create(serialNo, businCode, parameterString);
+    private void internalCreate(String serialNo, String businName, String parameterString) throws Exception {
+        super.create(serialNo, businName, parameterString);
     }
 
     @Override

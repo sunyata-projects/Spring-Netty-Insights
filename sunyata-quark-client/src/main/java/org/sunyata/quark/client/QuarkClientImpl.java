@@ -35,8 +35,8 @@ public class QuarkClientImpl implements QuarkClient {
     @Autowired(required = false)
     QuarkFeignClient quarkFeignClient;
 
-    public JsonResponseResult create(String serialNo, String businCode, String parameterString) {
-        return quarkFeignClient.create(serialNo, businCode, parameterString);
+    public JsonResponseResult create(String serialNo, String businName, String parameterString) {
+        return quarkFeignClient.create(serialNo, businName, parameterString);
     }
 
     public JsonResponseResult<List<BusinessComponentDescriptor>> components() {

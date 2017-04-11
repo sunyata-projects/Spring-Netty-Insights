@@ -20,14 +20,15 @@
 
 package org.sunyata.quark.basic;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by leo on 16/12/11.
  */
-public class QuarkComponentOptions {
-    private final Map<String, Object> maps = new HashMap<>();
+public class QuarkComponentOptions implements Serializable {
+    private Map<String, Object> maps = new HashMap<>();
 
     public QuarkComponentOptions put(String key, Object value) {
         maps.put(key, value);

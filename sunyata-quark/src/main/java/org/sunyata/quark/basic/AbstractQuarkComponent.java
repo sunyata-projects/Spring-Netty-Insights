@@ -23,7 +23,8 @@ package org.sunyata.quark.basic;
 /**
  * Created by leo on 16/12/14.
  */
-public abstract class AbstractQuarkComponent<TParameterInfo extends QuarkParameterInfo> {
+public abstract class AbstractQuarkComponent<TParameterInfo extends QuarkParameterInfo> implements
+        QuarkComponent<TParameterInfo> {
 
     public TParameterInfo getParameterInfo(BusinessContext context) throws Exception {
         return (TParameterInfo) new QuarkParameterInfo().setBusinessContext(context);
@@ -48,8 +49,4 @@ public abstract class AbstractQuarkComponent<TParameterInfo extends QuarkParamet
         }
         return processResult;
     }
-
-    protected abstract ProcessResult execute(TParameterInfo parameterInfo);
-
-    protected abstract ProcessResult compensate(TParameterInfo parameterInfo);
 }

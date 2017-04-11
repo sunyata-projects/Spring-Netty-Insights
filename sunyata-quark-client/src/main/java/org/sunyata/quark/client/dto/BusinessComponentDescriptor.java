@@ -27,8 +27,8 @@ public class BusinessComponentDescriptor {
 
     private String description;
     private String version;
-    private String businCode;//业务标识符ccop.withdraw
-    private String bisinName;//业务名称
+    private String businName;//业务标识符ccop.withdraw
+    private String bisinFriendlyName;//业务名称
     private boolean compensationSwitch;
 
     public boolean getCompensationSwitch() {
@@ -42,13 +42,13 @@ public class BusinessComponentDescriptor {
 
 
 
-    public BusinessComponentDescriptor setBusinCode(String businCode) {
-        this.businCode = businCode;
+    public BusinessComponentDescriptor setBusinName(String businName) {
+        this.businName = businName;
         return this;
     }
 
-    public BusinessComponentDescriptor setBisinName(String bisinName) {
-        this.bisinName = bisinName;
+    public BusinessComponentDescriptor setBisinFriendlyName(String bisinFriendlyName) {
+        this.bisinFriendlyName = bisinFriendlyName;
         return this;
     }
 
@@ -72,12 +72,12 @@ public class BusinessComponentDescriptor {
         return this;
     }
 
-    public String getBusinCode() {
-        return businCode;
+    public String getBusinName() {
+        return businName;
     }
 
-    public String getBisinName() {
-        return bisinName;
+    public String getBisinFriendlyName() {
+        return bisinFriendlyName;
     }
 
 

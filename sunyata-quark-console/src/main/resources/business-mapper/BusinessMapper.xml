@@ -26,17 +26,17 @@
         INSERT INTO Business(name ,age) VALUES (#{name},#{age})
     </insert>
     <insert id="insertBusinessComponent">
-        INSERT INTO BusinessComponent(businSerialNo, businCode,businName,version,parameterString,businStatus,canContinue,
+        INSERT INTO BusinessComponent(businSerialNo, businName,businFriendlyName,version,parameterString,businStatus,canContinue,
         createDateTime,updateDateTime)
-        VALUES(#{businSerialNo}, #{businCode},#{businName},#{version},#{parameterString},#{businStatus} #{canContinue},
+        VALUES(#{businSerialNo}, #{businName},#{businFriendlyName},#{version},#{parameterString},#{businStatus} #{canContinue},
         #{createDateTime},#{updateDateTime})
     </insert>
 
 
     <insert id="insertAtomicComponent">
-        INSERT INTO AtomicComponent(serialNo, businSerialNo,businItemCode,businItemName,version,createDateTime,
+        INSERT INTO AtomicComponent(serialNo, businSerialNo,quarkName,quarkFriendlyName,version,createDateTime,
         orderby,subOrder,processResult,canContinue)
-        VALUES(#{serialNo}, #{businSerialNo},#{businItemCode},#{businItemName},#{version},#{createDateTime},
+        VALUES(#{serialNo}, #{businSerialNo},#{quarkName},#{quarkFriendlyName},#{version},#{createDateTime},
         #{orderby},#{subOrder},#{processResult},#{canContinue})
     </insert>
 </mapper>

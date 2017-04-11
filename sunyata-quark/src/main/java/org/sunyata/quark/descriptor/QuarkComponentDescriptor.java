@@ -27,17 +27,19 @@ import org.sunyata.quark.basic.QuarkComponentOptions;
 import org.sunyata.quark.basic.Validator;
 import org.sunyata.quark.exception.ValidateException;
 
+import java.io.Serializable;
+
 /**
  * Created by leo on 16/12/11.
  */
-public class QuarkComponentDescriptor implements Validator {
+public class QuarkComponentDescriptor implements Serializable, Validator {
 
     private ContinueTypeEnum continueType = ContinueTypeEnum.Succeed;
     private Class<? extends AbstractQuarkComponent> clazz = null;
     private QuarkComponentOptions options = new QuarkComponentOptions();
-    private String businItemCode;
-    private String businItemName;
-
+    private String quarkName;
+    private String quarkFriendlyName;
+    private String version;
     private Integer order;
     private Integer subOrder;
 
@@ -68,7 +70,7 @@ public class QuarkComponentDescriptor implements Validator {
         return this;
     }
 
-    private String version;
+
 
     public Class<? extends AbstractQuarkComponent> getClazz() {
         return clazz;
@@ -115,22 +117,22 @@ public class QuarkComponentDescriptor implements Validator {
         }
     }
 
-    public QuarkComponentDescriptor setBusinItemCode(String businItemCode) {
-        this.businItemCode = businItemCode;
+    public QuarkComponentDescriptor setQuarkName(String quarkName) {
+        this.quarkName = quarkName;
         return this;
     }
 
-    public String getBusinItemCode() {
-        return businItemCode;
+    public String getQuarkName() {
+        return quarkName;
     }
 
-    public QuarkComponentDescriptor setBusinItemName(String businItemName) {
-        this.businItemName = businItemName;
+    public QuarkComponentDescriptor setQuarkFriendlyName(String quarkFriendlyName) {
+        this.quarkFriendlyName = quarkFriendlyName;
         return this;
     }
 
-    public String getBusinItemName() {
-        return businItemName;
+    public String getQuarkFriendlyName() {
+        return quarkFriendlyName;
     }
 }
 

@@ -23,12 +23,14 @@ package org.sunyata.quark.basic;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
 import org.sunyata.quark.store.QuarkComponentInstance;
 
+import java.io.Serializable;
+
 /**
  * Created by leo on 17/3/16.
  */
-public class ProcessResult {
+public class ProcessResult implements Serializable {
     private ProcessResultTypeEnum processResultType;//处理结果
-//    private CanContinueTypeEnum canContinueType;//是否可以继续
+    //    private CanContinueTypeEnum canContinueType;//是否可以继续
 //    private boolean needCancel;//是否需要补偿
     private QuarkComponentInstance quarkComponentInstance;
     private QuarkComponentDescriptor quarkComponentDescriptor;

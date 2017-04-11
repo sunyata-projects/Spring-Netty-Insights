@@ -32,7 +32,7 @@ import org.sunyata.quark.stereotype.BusinessComponent;
 /**
  * Created by leo on 16/12/15.
  */
-@BusinessComponent(businCode = "SingleBusinessComponent", bisinName = "业务名称", version = "1.0", description =
+@BusinessComponent(businName = "SingleBusinessComponent", bisinFriendlyName = "业务名称", version = "1.0", description =
         "desc",
         compensationSwitch = false)
 public class SingleBusinessComponent extends AbstractBusinessComponent<FooFlow, DefaultExecutor> {

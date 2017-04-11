@@ -47,12 +47,12 @@ public class QuarkComponentInstance implements Serializable {
         return this;
     }
 
-    public String getBusinItemCode() {
-        return businItemCode;
+    public String getQuarkName() {
+        return quarkName;
     }
 
-    public QuarkComponentInstance setBusinItemCode(String businItemCode) {
-        this.businItemCode = businItemCode;
+    public QuarkComponentInstance setQuarkName(String quarkName) {
+        this.quarkName = quarkName;
         return this;
     }
 
@@ -65,12 +65,12 @@ public class QuarkComponentInstance implements Serializable {
         return this;
     }
 
-    public String getBusinItemName() {
-        return businItemName;
+    public String getQuarkFriendlyName() {
+        return quarkFriendlyName;
     }
 
-    public QuarkComponentInstance setBusinItemName(String businItemName) {
-        this.businItemName = businItemName;
+    public QuarkComponentInstance setQuarkFriendlyName(String quarkFriendlyName) {
+        this.quarkFriendlyName = quarkFriendlyName;
         return this;
     }
 
@@ -159,7 +159,7 @@ public class QuarkComponentInstance implements Serializable {
     /**
      * 业务元编码,相同的业务元组件,编码相同
      */
-    private String businItemCode;
+    private String quarkName;
 
     /**
      * 业务元版本
@@ -168,7 +168,7 @@ public class QuarkComponentInstance implements Serializable {
     /**
      * 业务元名称
      */
-    private String businItemName;
+    private String quarkFriendlyName;
     /**
      * 创建时间
      */

@@ -40,7 +40,7 @@ public interface QuarkFeignClient {
     public class QuarkFeignClientHystrix implements QuarkFeignClient {
 
         public JsonResponseResult create(@RequestParam(value = "serialNo") String serialNo, @RequestParam(value =
-                "businCode") String businCode, @RequestParam(value = "parameterString") String parameterString) {
+                "businName") String businName, @RequestParam(value = "parameterString") String parameterString) {
             return JsonResponseResult.Error(99, "服务访问异常");
         }
 
@@ -59,8 +59,8 @@ public interface QuarkFeignClient {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/create")
-    JsonResponseResult create(@RequestParam(value = "serialNo") String serialNo, @RequestParam(value = "businCode")
-    String businCode, @RequestParam(value = "parameterString") String parameterString);
+    JsonResponseResult create(@RequestParam(value = "serialNo") String serialNo, @RequestParam(value = "businName")
+    String businName, @RequestParam(value = "parameterString") String parameterString);
 
     @RequestMapping(method = RequestMethod.GET, value = "/components")
     JsonResponseResult<List<BusinessComponentDescriptor>> components();

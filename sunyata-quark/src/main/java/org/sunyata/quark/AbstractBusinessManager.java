@@ -79,7 +79,7 @@ public abstract class AbstractBusinessManager implements BusinessManager {
     }
 
     @Override
-    public void create(String serialNo, String businCode, String parameterString) throws Exception {
+    public void create(String serialNo, String businName, String parameterString) throws Exception {
         if (parameterString == null || parameterString.trim().length() == 0) {
             throw new Exception("参数不能为空");
         }
@@ -90,7 +90,7 @@ public abstract class AbstractBusinessManager implements BusinessManager {
         }
 //        long startTime = System.currentTimeMillis();   //获取开始时间
         BusinessInstanceStore bestService = ServiceLocator.getBestService(BusinessInstanceStore.class);
-        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(businCode);
+        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(businName);
         BusinessComponentInstance instance = BusinessInstanceFactory.createInstance(
                 serialNo,
                 parameterString,
@@ -107,7 +107,7 @@ public abstract class AbstractBusinessManager implements BusinessManager {
             throw new Exception("businessInstance  cannot be found");
         }
         instance.readOriginalHashCode();
-        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinCode());
+        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
         if (abstractBusinessComponent == null) {
             throw new Exception("没有找到组件");
         }
@@ -123,7 +123,7 @@ public abstract class AbstractBusinessManager implements BusinessManager {
         BusinessInstanceLoader bestService = ServiceLocator.getBestService(BusinessInstanceLoader.class);
         BusinessComponentInstance instance = bestService.load(serialNo);
         instance.readOriginalHashCode();
-        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinCode());
+        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
         if (abstractBusinessComponent == null) {
             throw new Exception("没有找到组件");
         }
@@ -152,7 +152,7 @@ public abstract class AbstractBusinessManager implements BusinessManager {
             throw new Exception("此业务不可补偿");
         }
         instance.readOriginalHashCode();
-        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinCode());
+        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
         if (abstractBusinessComponent == null) {
             throw new Exception("没有找到组件");
         }
@@ -162,11 +162,11 @@ public abstract class AbstractBusinessManager implements BusinessManager {
         abstractBusinessComponent.getExecutor().run(context);
     }
 
-    private AbstractBusinessComponent getBusinessComponent(String businCode) throws IllegalAccessException,
+    private AbstractBusinessComponent getBusinessComponent(String businName) throws IllegalAccessException,
             InstantiationException {
-        Class<? extends AbstractBusinessComponent> orDefault = maps.getOrDefault(businCode, null);
+        Class<? extends AbstractBusinessComponent> orDefault = maps.getOrDefault(businName, null);
         if (orDefault != null) {
-            AbstractBusinessComponent service = ServiceLocator.getLocator().getService(maps.getOrDefault(businCode,
+            AbstractBusinessComponent service = ServiceLocator.getLocator().getService(maps.getOrDefault(businName,
                     null));
             return service;
         }
@@ -179,7 +179,7 @@ public abstract class AbstractBusinessManager implements BusinessManager {
         if (annotation == null) {
             throw new Exception("业务组件没有定义标注");
         }
-        maps.put(annotation.businCode(), businessComponentClazz);
+        maps.put(annotation.businName(), businessComponentClazz);
     }
 
 

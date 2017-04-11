@@ -94,9 +94,9 @@ public abstract class AbstractExecutor implements Executor {
         QuarkComponentLog quarkComponentLog = BusinessInstanceFactory.createQuarkComponentLog(
                 quarkComponentInstance.getBusinSerialNo(),
                 quarkComponentInstance.getSerialNo(),
-                quarkComponentInstance.getBusinItemCode(),
+                quarkComponentInstance.getQuarkName(),
                 quarkComponentInstance.getVersion(),
-                quarkComponentInstance.getBusinItemName(),
+                quarkComponentInstance.getQuarkFriendlyName(),
                 result.getProcessResultType(),
                 "",
                 result.getProcessResultString());

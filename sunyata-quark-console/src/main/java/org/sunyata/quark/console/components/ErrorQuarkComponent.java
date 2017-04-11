@@ -30,7 +30,7 @@ import org.sunyata.quark.stereotype.QuarkComponent;
 /**
  * Created by leo on 16/12/15.
  */
-@QuarkComponent(businItemCode = "ErrorQuarkComponent", businItemName = "ErrorQuarkComponent", version = "1.0")
+@QuarkComponent(quarkName = "ErrorQuarkComponent", quarkFriendlyName = "ErrorQuarkComponent", version = "1.0")
 public class ErrorQuarkComponent extends AbstractQuarkComponent<ErrorQuarkComponent.ErrorQuarkParameterInfo> {
 
     class ErrorQuarkParameterInfo extends QuarkParameterInfo {
@@ -45,7 +45,7 @@ public class ErrorQuarkComponent extends AbstractQuarkComponent<ErrorQuarkCompon
 
         @Override
         public QuarkParameterInfo parse(BusinessContext context) throws Exception {
-            //if (context.getBusinessComponent().getBusinessComponentDescriptor().getBusinCode() == "") {
+            //if (context.getBusinessComponent().getBusinessComponentDescriptor().getBusinName() == "") {
             String parameterString = context.getInstance().getParameterString();
             JsonObject jsonObject = new JsonObject(parameterString);
             String field1 = jsonObject.getString("field1");

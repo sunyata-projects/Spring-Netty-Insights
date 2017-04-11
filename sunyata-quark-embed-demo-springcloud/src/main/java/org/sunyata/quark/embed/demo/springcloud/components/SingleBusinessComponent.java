@@ -24,9 +24,8 @@ import org.springframework.stereotype.Component;
 import org.sunyata.quark.DefaultOrchestration;
 import org.sunyata.quark.basic.AbstractBusinessComponent;
 import org.sunyata.quark.basic.Orchestration;
-import org.sunyata.quark.basic.QuarkComponentOptions;
-import org.sunyata.quark.descriptor.QuarkComponentDescriptorFactory;
 import org.sunyata.quark.embed.demo.springcloud.FooFlow;
+import org.sunyata.quark.embed.springcloud.RemoteQuarkComponentDescriptorFactory;
 import org.sunyata.quark.executor.DefaultExecutor;
 import org.sunyata.quark.stereotype.BusinessComponent;
 
@@ -34,7 +33,7 @@ import org.sunyata.quark.stereotype.BusinessComponent;
  * Created by leo on 16/12/15.
  */
 @Component
-@BusinessComponent(businCode = "SingleBusinessComponent", bisinName = "业务名称", version = "1.0", description =
+@BusinessComponent(businName = "SingleBusinessComponent", bisinFriendlyName = "业务名称", version = "1.0", description =
         "desc",
         compensationSwitch = false)
 public class SingleBusinessComponent extends AbstractBusinessComponent<FooFlow, DefaultExecutor> {
@@ -49,10 +48,8 @@ public class SingleBusinessComponent extends AbstractBusinessComponent<FooFlow, 
     public FooFlow initializeFlow() throws Exception {
         Orchestration<FooFlow> orchestration =
                 new DefaultOrchestration<FooFlow>()
-                        .beginWith(QuarkComponentDescriptorFactory.getDescriptor(RetryQuarkComponent.class)
-                                .setOptions(new QuarkComponentOptions()
-                                        .setRetryLimitTimes(3)
-                                        .setCanCancel(true)))
+                        .beginWith(RemoteQuarkComponentDescriptorFactory.getDescriptor("quark-provider-1",
+                                "BarQuarkComponent"))
                         .setBusinessComponentDescriptor(this.initializeDescriptor());
 
         return orchestration.orchestrate(FooFlow.class);

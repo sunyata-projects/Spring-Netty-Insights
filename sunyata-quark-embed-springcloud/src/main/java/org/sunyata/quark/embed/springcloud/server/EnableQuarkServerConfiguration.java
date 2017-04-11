@@ -23,6 +23,7 @@ package org.sunyata.quark.embed.springcloud.server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,7 @@ import org.sunyata.quark.embed.springcloud.publish.SpringEventEventPublisher;
 @Configuration
 @ComponentScan("org.sunyata.quark.embed.springcloud")
 @EnableDiscoveryClient
+@EnableFeignClients
 @EnableConfigurationProperties({QuarkServerProperties.class})
 public class EnableQuarkServerConfiguration {
 

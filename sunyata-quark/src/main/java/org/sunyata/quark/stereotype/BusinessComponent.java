@@ -41,9 +41,9 @@ public @interface BusinessComponent {
 
     String version() default "";
 
-    String businCode() default "";//业务标识符ccop.withdraw
+    String businName() default "";//业务标识符ccop.withdraw
 
-    String bisinName() default "";//业务名称
+    String bisinFriendlyName() default "";//业务名称
 
     boolean compensationSwitch() default false;//业务补偿开关
 
