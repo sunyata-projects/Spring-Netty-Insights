@@ -48,7 +48,9 @@ public class SingleBusinessComponent extends AbstractBusinessComponent<FooFlow, 
     public FooFlow initializeFlow() throws Exception {
         Orchestration<FooFlow> orchestration =
                 new DefaultOrchestration<FooFlow>()
-                        .beginWith(RemoteQuarkComponentDescriptorFactory.getDescriptor("quark-provider-1",
+                        .beginWith(SuccessQuarkComponent.class)
+                        .succeed()
+                        .next(RemoteQuarkComponentDescriptorFactory.getDescriptor("quark-provider-1",
                                 "BarQuarkComponent"))
                         .setBusinessComponentDescriptor(this.initializeDescriptor());
 

@@ -62,7 +62,6 @@ public class BusinessContext implements Serializable {
         BusinessContext businessContext = new BusinessContext().setInstance(instance).setBusinessComponent
                 (abstractBusinessComponent).setSerialNo
                 (serialNo);
-        businessContext.getParameters().put("test", "test");
         return businessContext;
     }
 

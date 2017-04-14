@@ -61,7 +61,7 @@ public class MyRunner implements CommandLineRunner {
         for (int i = 0; i < 1; i++) {
             String s3 = String.valueOf(worker.nextId());
             String encode = Json.encode(new QuarkParameterInfo());
-            businessManager.create(s3, "SingleBusinessComponent", encode);
+            businessManager.create(s3, "ParallelBusinessComponent", encode);
             businessManager.run(s3);
         }
 

@@ -60,6 +60,7 @@ public class ParallelBusinessComponent extends AbstractBusinessComponent<FooFlow
                                         .setCanCancel(true)))
                         .succeed()
 
+
                         .parallel(QuarkComponentDescriptorFactory.getDescriptor(RetryQuarkComponent.class)
                                         .setContinueType(ContinueTypeEnum.Anyway),
                                 QuarkComponentDescriptorFactory.getDescriptor(SuccessQuarkComponent.class)

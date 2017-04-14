@@ -62,14 +62,14 @@ public class ErrorQuarkComponent extends AbstractQuarkComponent<ErrorQuarkCompon
     }
 
     @Override
-    protected ProcessResult execute(ErrorQuarkParameterInfo parameterInfo) {
+    public ProcessResult execute(ErrorQuarkParameterInfo parameterInfo) {
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
         return ProcessResult.e();
     }
 
     @Override
-    protected ProcessResult compensate(ErrorQuarkParameterInfo parameterInfo) {
+    public ProcessResult compensate(ErrorQuarkParameterInfo parameterInfo) {
         return null;
     }
 
