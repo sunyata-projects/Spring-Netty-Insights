@@ -46,7 +46,7 @@ public class ErrorQuarkComponent extends AbstractQuarkComponent<ErrorQuarkCompon
         @Override
         public QuarkParameterInfo parse(BusinessContext context) throws Exception {
             //if (context.getBusinessComponent().getBusinessComponentDescriptor().getBusinName() == "") {
-            String parameterString = context.getInstance().getParameterString();
+            String parameterString = context.getInstance().getQuarkParameter().getParameter();
             JsonObject jsonObject = new JsonObject(parameterString);
             String field1 = jsonObject.getString("field1");
             return new ErrorQuarkParameterInfo().setField1(field1);

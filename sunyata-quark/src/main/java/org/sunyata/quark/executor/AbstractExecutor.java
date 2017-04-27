@@ -35,6 +35,7 @@ import org.sunyata.quark.store.QuarkComponentInstance;
 import org.sunyata.quark.store.QuarkComponentLog;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * Created by leo on 16/12/14.
@@ -91,6 +92,10 @@ public abstract class AbstractExecutor implements Executor {
         BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore
                 .class);
         QuarkComponentInstance quarkComponentInstance = result.getQuarkComponentInstance();
+        HashMap<String, Object> outputParameterMaps = result.getOutputParameterMaps();
+        if (outputParameterMaps != null) {
+            businessContext.getInstance().setOutputParameters(outputParameterMaps);
+        }
         QuarkComponentLog quarkComponentLog = BusinessInstanceFactory.createQuarkComponentLog(
                 quarkComponentInstance.getBusinSerialNo(),
                 quarkComponentInstance.getSerialNo(),

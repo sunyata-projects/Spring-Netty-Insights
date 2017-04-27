@@ -27,6 +27,7 @@ import org.sunyata.quark.serialno.SerialNoGenerator;
 import org.sunyata.quark.store.BusinessComponentInstance;
 import org.sunyata.quark.store.QuarkComponentInstance;
 import org.sunyata.quark.store.QuarkComponentLog;
+import org.sunyata.quark.store.QuarkParameter;
 
 import java.sql.Timestamp;
 
@@ -64,12 +65,15 @@ public class BusinessInstanceFactory {
                 .setDescription(businessComponentDescriptor.getDescription())
                 .setVersion(businessComponentDescriptor.getVersion())
                 .setCreateDateTime(timestamp)
-                .setParameterString(parameterString)
+                //.setParameterString(parameterString)
                 .setCanContinue(CanContinueTypeEnum.CanContinue)
                 .setBusinStatus(BusinessStatusTypeEnum.Initialize)
                 .setNeedToRetry(false)
                 .setBusinessMode(BusinessModeTypeEnum.Normal)
                 .setUpdateDateTime(timestamp);
+        QuarkParameter quarkParameter = new QuarkParameter().setParameter(parameterString).setBusinessSerialNo(serialNo)
+                .setParameterType(1);
+        result.setQuarkParameter(quarkParameter);
         Flow flow = component.getFlow();
         ProcessSequencing processSequencing = flow.getProcessSequencing();
         for (MutltipleQuarkComponentDescriptor next : processSequencing) {

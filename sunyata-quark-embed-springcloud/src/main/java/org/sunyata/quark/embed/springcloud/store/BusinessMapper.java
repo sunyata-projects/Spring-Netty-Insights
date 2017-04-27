@@ -24,6 +24,7 @@ import org.apache.ibatis.annotations.*;
 import org.sunyata.quark.store.BusinessComponentInstance;
 import org.sunyata.quark.store.QuarkComponentInstance;
 import org.sunyata.quark.store.QuarkComponentLog;
+import org.sunyata.quark.store.QuarkParameter;
 
 import java.util.List;
 
@@ -32,12 +33,16 @@ import java.util.List;
  */
 @Mapper
 public interface BusinessMapper {
-    @Insert("INSERT INTO BusinessComponent(serialNo, businName,businFriendlyName,version,parameterString," +
+    @Insert("INSERT INTO BusinessComponent(serialNo, businName,businFriendlyName,version," +
             "businStatus,canContinue,createDateTime,updateDateTime,needToRetry,businessMode) " +
-            "VALUES(#{serialNo}, #{businName},#{businFriendlyName},#{version},#{parameterString},#{businStatus}," +
+            "VALUES(#{serialNo}, #{businName},#{businFriendlyName},#{version},#{businStatus}," +
             "#{canContinue},#{createDateTime},#{updateDateTime},#{needToRetry},#{businessMode})")
     int insertByBusinessComponent(BusinessComponentInstance businessComponent);
 
+
+    @Insert("INSERT INTO QuarkParameter(businessSerialNo, parameterType,parameter) " +
+            "VALUES(#{businessSerialNo}, #{parameterType},#{parameter})")
+    void insertByQuarkParameter(QuarkParameter quarkParameter);
 
     @Insert("INSERT INTO QuarkComponent(serialNo, businSerialNo,quarkName,quarkFriendlyName,version," +
             "createDateTime, orderby, subOrder, processResult, continueType) " +
@@ -73,6 +78,15 @@ public interface BusinessMapper {
     @Select("SELECT * FROM BusinessComponent WHERE businessMode = 'Normal' and needToRetry=1 and " +
             "canContinue='CanContinue'")
     List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n);
+
+    @Select("SELECT * FROM QuarkParameter WHERE businessSerialNo = #{serialNo} and parameterType=#{parameterType}")
+    QuarkParameter findQuarkParameter(@Param("serialNo") String serialNo, @Param("parameterType") int parameterType);
+
+    @Update("UPDATE QuarkParameter SET parameter=#{parameter} WHERE businessSerialNo=#{businessSerialNo} and " +
+            "parameterType=#{parameterType}")
+    void updateQuarkParameter(QuarkParameter quarkParameterContext);
+
+
 //
 //    @Insert("INSERT INTO USER(NAME, AGE) VALUES(#{name}, #{age})")
 //    int insert(@Param("name") String name, @Param("age") Integer age);

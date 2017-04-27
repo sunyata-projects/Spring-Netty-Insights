@@ -41,7 +41,8 @@ public class BusinessSerializableContext implements Serializable {
     private String currentQuarkSerialNo;
 
 
-    public static BusinessSerializableContext getContext(String serialNo, AbstractBusinessComponent abstractBusinessComponent,
+    public static BusinessSerializableContext getContext(String serialNo, AbstractBusinessComponent
+            abstractBusinessComponent,
                                                          BusinessComponentInstance instance)
             throws IllegalAccessException, InstantiationException {
 
@@ -92,14 +93,14 @@ public class BusinessSerializableContext implements Serializable {
         return currentQuarkDescriptor;
     }
 
-    public ConcurrentMap<String, Object> getParameters() {
-        return parameters;
-    }
+    //public ConcurrentMap<String, Object> getParameters() {
+    //return parameters;
+    //}
 
-    public BusinessSerializableContext setParameters(ConcurrentMap<String, Object> parameters) {
-        this.parameters = parameters;
-        return this;
-    }
+//    public BusinessSerializableContext setParameters(ConcurrentMap<String, Object> parameters) {
+//        this.parameters = parameters;
+//        return this;
+//    }
 
     public void setCurrentQuarkSerialNo(String currentQuarkSerialNo) {
         this.currentQuarkSerialNo = currentQuarkSerialNo;

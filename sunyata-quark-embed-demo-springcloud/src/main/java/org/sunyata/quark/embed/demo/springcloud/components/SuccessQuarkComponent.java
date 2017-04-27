@@ -45,6 +45,8 @@ public class SuccessQuarkComponent extends AbstractQuarkComponent {
     @Override
     public ProcessResult execute(QuarkParameterInfo parameterInfo) {
         System.out.println("hello world" + Thread.currentThread().getName());
+        Object parameter = parameterInfo.getBusinessContext().getParameter("key1", "defaultValue");
+        System.out.println(parameter);
         return ProcessResult.s();
     }
 

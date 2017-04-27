@@ -23,6 +23,7 @@ package org.sunyata.quark.client;
 import org.sunyata.quark.client.dto.BusinessComponentDescriptor;
 import org.sunyata.quark.client.dto.BusinessComponentInstance;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -34,6 +35,8 @@ public interface QuarkClient {
 
 
     JsonResponseResult create(String serialNo, String businName, String parameterString);
+
+    JsonResponseResult create(String serialNo, String businName, HashMap<String, Object> parameters);
 
     JsonResponseResult<List<BusinessComponentDescriptor>> components();
 

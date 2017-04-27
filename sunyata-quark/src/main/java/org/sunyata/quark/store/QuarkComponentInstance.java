@@ -150,6 +150,14 @@ public class QuarkComponentInstance implements Serializable {
         return this;
     }
 
+    public String getResult() {
+        return result;
+    }
+
+    public QuarkComponentInstance setResult(String result) {
+        this.result = result;
+        return this;
+    }
 
     /**
      * 业务元流水号
@@ -204,6 +212,12 @@ public class QuarkComponentInstance implements Serializable {
      * 备注
      */
     private String notes;
+
+    /**
+     * 备注
+     */
+    private String result;
+
     /**
      * 已经执行次数
      */

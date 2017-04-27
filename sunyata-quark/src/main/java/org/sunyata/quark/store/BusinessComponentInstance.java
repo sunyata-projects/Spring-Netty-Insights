@@ -28,6 +28,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -93,15 +94,15 @@ public class BusinessComponentInstance implements Serializable {
         return this;
     }
 
-    public String getParameterString() {
-        return parameterString;
-    }
+//    public String getParameterString() {
+//        return parameterString;
+//    }
 
-    public BusinessComponentInstance setParameterString(String parameterString) {
-        this.parameterString = parameterString;
-        return this;
-    }
-
+    //    public BusinessComponentInstance setParameterString(String parameterString) {
+//        this.parameterString = parameterString;
+//        return this;
+//    }
+//
     public String getBusinName() {
         return businName;
     }
@@ -166,6 +167,38 @@ public class BusinessComponentInstance implements Serializable {
         return this;
     }
 
+    public QuarkParameter getQuarkParameter() {
+        return quarkParameter;
+    }
+
+    public BusinessComponentInstance setQuarkParameter(QuarkParameter quarkParameter) {
+        this.quarkParameter = quarkParameter;
+        return this;
+    }
+
+    private QuarkParameter quarkParameter;
+
+
+//    public QuarkParameter getQuarkParameterContext() {
+//        return quarkParameterContext;
+//    }
+//
+//    public BusinessComponentInstance setQuarkParameterContext(QuarkParameter quarkParameterContext) {
+//        this.quarkParameterContext = quarkParameterContext;
+//        return this;
+//    }
+
+    public HashMap<String, Object> getOutputParameters() {
+        return outputParameters;
+    }
+
+    public BusinessComponentInstance setOutputParameters(HashMap<String, Object> outputParameters) {
+        this.outputParameters = outputParameters;
+        return this;
+    }
+
+    private HashMap<String, Object> outputParameters = new HashMap<>();
+//    private QuarkParameter quarkParameterContext;
 
     /**
      * 业务流水号,全局唯一
@@ -199,7 +232,7 @@ public class BusinessComponentInstance implements Serializable {
     /**
      * 业务执行参数,一般为json格式,可以是任意能被业务组件识别的格式
      */
-    private String parameterString;
+    //private String parameterString;
 
     /**
      * 元子组件执行序列,创建业务组件实例时同时创建业务元实例

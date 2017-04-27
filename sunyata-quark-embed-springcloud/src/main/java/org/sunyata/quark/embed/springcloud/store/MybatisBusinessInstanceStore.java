@@ -29,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.sunyata.quark.basic.BusinessQueryService;
+import org.sunyata.quark.json.Json;
 import org.sunyata.quark.store.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -62,6 +64,7 @@ public class MybatisBusinessInstanceStore implements BusinessInstanceStore, Busi
             logger.info("getMapper:" + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
             startTime = System.currentTimeMillis();   //获取开始时间
             mapper.insertByBusinessComponent(instance);
+            mapper.insertByQuarkParameter(instance.getQuarkParameter());
             logger.info("insertByBusinessComponent:" + String.valueOf(System.currentTimeMillis() - startTime) + "ms");
 
             for (QuarkComponentInstance item : instance.getItems()) {
@@ -82,6 +85,20 @@ public class MybatisBusinessInstanceStore implements BusinessInstanceStore, Busi
         try (SqlSession session = sessionTemplate.getSqlSessionFactory().openSession(false)) {
             BusinessMapper mapper = session.getMapper(BusinessMapper.class);
             mapper.updateBusinessComponent(instance);
+            if (instance.getOutputParameters() != null && instance.getOutputParameters().size() > 0) {
+                HashMap<String, Object> outputParameters = instance.getOutputParameters();
+                String encode = Json.encode(outputParameters);
+
+                QuarkParameter quarkParameter = mapper.findQuarkParameter(instance.getSerialNo(), 2);
+                if (quarkParameter == null) {
+                    quarkParameter = new QuarkParameter().setBusinessSerialNo(instance.getSerialNo())
+                            .setParameterType(2).setParameter(encode);
+                    mapper.insertByQuarkParameter(quarkParameter);
+                } else {
+                    quarkParameter.setParameter(encode);
+                    mapper.updateQuarkParameter(quarkParameter);
+                }
+            }
             instance.getItems().forEach(mapper::updateAtomicComponent);
             mapper.insertByComponentLog(quarkComponentLog);
             session.commit();
@@ -100,6 +117,16 @@ public class MybatisBusinessInstanceStore implements BusinessInstanceStore, Busi
         //BusinessMapper mapper = session.getMapper(BusinessMapper.class);
         BusinessComponentInstance byName = mapper.findBySerialNo(serialNo);
         if (byName != null) {
+            QuarkParameter quarkParameter = mapper.findQuarkParameter(serialNo, 1);
+            QuarkParameter quarkParameterContext = mapper.findQuarkParameter(serialNo, 2);
+            if (quarkParameter != null) {
+                byName.setQuarkParameter(quarkParameter);
+            }
+            if (quarkParameterContext != null) {
+                HashMap hashMap = Json.decodeValue(quarkParameterContext.getParameter(), HashMap.class);
+                byName.setOutputParameters(hashMap);
+//                byName.setQuarkParameterContext(quarkParameterContext);
+            }
             List<QuarkComponentInstance> quarkComponentInstances = mapper.findAtomicComponentInstances
                     (serialNo);
             byName.setItems(quarkComponentInstances);

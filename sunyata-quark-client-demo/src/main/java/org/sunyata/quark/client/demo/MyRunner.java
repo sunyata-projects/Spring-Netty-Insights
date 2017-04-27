@@ -30,8 +30,8 @@ import org.sunyata.quark.client.JsonResponseResult;
 import org.sunyata.quark.client.QuarkClient;
 import org.sunyata.quark.client.dto.BusinessComponentDescriptor;
 import org.sunyata.quark.client.dto.QuarkParameterInfo;
-import org.sunyata.quark.client.json.Json;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -53,8 +53,14 @@ public class MyRunner implements CommandLineRunner {
         QuarkParameterInfo info = new QuarkParameterInfo();
 
         String serialNo = String.valueOf(idWorker.nextId());
-        JsonResponseResult singleBusinessComponent = quarkClient.create(serialNo, "ParallelBusinessComponent", Json
-                .encode(info));
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("key1", "value1");
+        parameters.put("key2", "value2");
+        parameters.put("key3", "value3");
+        parameters.put("key4", "value4");
+
+        JsonResponseResult singleBusinessComponent = quarkClient.create(serialNo, "ParallelBusinessComponent",
+                parameters);
         if (singleBusinessComponent.getCode() == 0) {
             logger.info(serialNo);
             JsonResponseResult run = quarkClient.run(serialNo);

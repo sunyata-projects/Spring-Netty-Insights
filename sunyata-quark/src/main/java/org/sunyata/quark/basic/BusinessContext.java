@@ -22,11 +22,11 @@ package org.sunyata.quark.basic;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
+import org.sunyata.quark.json.Json;
 import org.sunyata.quark.store.BusinessComponentInstance;
 
 import java.io.Serializable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.HashMap;
 
 /**
  * Created by leo on 16/12/14.
@@ -37,17 +37,37 @@ public class BusinessContext implements Serializable {
     private AbstractBusinessComponent businessComponent;
     private BusinessModeTypeEnum businessMode;
     private boolean primary;
-    private ConcurrentMap<String, Object> parameters = new ConcurrentHashMap<>();
+    private HashMap parameters;
     private String serialNo;
     private BusinessComponentInstance instance;
     private QuarkComponentDescriptor currentQuarkDescriptor;
     private String currentQuarkSerialNo;
 
+
+    public Object getParameter(String key, Object defaultValue) {
+        if (this.instance != null) {
+            HashMap<String, Object> outputParameters = this.instance.getOutputParameters();
+            if (outputParameters != null) {
+                if (outputParameters.containsKey(key)) {
+                    return outputParameters.getOrDefault(key, defaultValue);
+                }
+            }
+            if (parameters == null) {
+                String parameter = this.instance.getQuarkParameter().getParameter();
+                parameters = Json.decodeValue(parameter, HashMap.class);
+            }
+            if (parameters != null) {
+                return parameters.getOrDefault(key, defaultValue);
+            }
+        }
+        return defaultValue;
+    }
+
     public BusinessSerializableContext generateSerializableContext() {
         BusinessSerializableContext context = new BusinessSerializableContext();
         context.setBusinessMode(this.getBusinessMode());
         context.setPrimary(this.isPrimary());
-        context.setParameters(this.getParameters());
+//        context.setParameters(this.getParameters());
         context.setSerialNo(this.getSerialNo());
         context.setInstance(this.getInstance());
         context.setCurrentQuarkDescriptor(this.getCurrentQuarkDescriptor().setClazz(null));
@@ -118,14 +138,14 @@ public class BusinessContext implements Serializable {
         return currentQuarkDescriptor;
     }
 
-    public ConcurrentMap<String, Object> getParameters() {
-        return parameters;
-    }
-
-    public BusinessContext setParameters(ConcurrentMap<String, Object> parameters) {
-        this.parameters = parameters;
-        return this;
-    }
+//    public ConcurrentMap<String, Object> getParameters() {
+//        return parameters;
+//    }
+//
+//    public BusinessContext setParameters(ConcurrentMap<String, Object> parameters) {
+//        this.parameters = parameters;
+//        return this;
+//    }
 
     public void setCurrentQuarkSerialNo(String currentQuarkSerialNo) {
         this.currentQuarkSerialNo = currentQuarkSerialNo;

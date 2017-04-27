@@ -24,16 +24,39 @@ import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
 import org.sunyata.quark.store.QuarkComponentInstance;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 /**
  * Created by leo on 17/3/16.
  */
 public class ProcessResult implements Serializable {
+
     private ProcessResultTypeEnum processResultType;//处理结果
-    //    private CanContinueTypeEnum canContinueType;//是否可以继续
-//    private boolean needCancel;//是否需要补偿
     private QuarkComponentInstance quarkComponentInstance;
     private QuarkComponentDescriptor quarkComponentDescriptor;
+    private String processResultString;//接口返回数据
+
+    public HashMap<String, Object> getOutputParameterMaps() {
+        return outputParameterMaps;
+    }
+
+    public ProcessResult setOutputParameterMaps(HashMap<String, Object> outputParameterMaps) {
+        this.outputParameterMaps = outputParameterMaps;
+        return this;
+    }
+
+    private HashMap<String, Object> outputParameterMaps = new HashMap<>();
+
+
+    public ProcessResult setOutputParameter(String key, Object value) {
+        outputParameterMaps.put(key, value);
+        return this;
+    }
+
+    public Object getOutputParameter(String key, Object defaultValue) {
+        return outputParameterMaps.getOrDefault(key, defaultValue);
+    }
+
 
     public String getProcessResultString() {
         return processResultString;
@@ -44,17 +67,6 @@ public class ProcessResult implements Serializable {
         return this;
     }
 
-    private String processResultString;//接口返回数据
-
-//    public boolean isNeedCancel() {
-//        return needCancel;
-//    }
-//
-//    public ProcessResult setNeedCancel(boolean needCancel) {
-//        this.needCancel = needCancel;
-//        return this;
-//    }
-
     public ProcessResultTypeEnum getProcessResultType() {
         return processResultType;
     }
@@ -63,15 +75,6 @@ public class ProcessResult implements Serializable {
         this.processResultType = processResultType;
         return this;
     }
-
-//    public CanContinueTypeEnum getCanContinueType() {
-//        return canContinueType;
-//    }
-//
-//    public ProcessResult setCanContinueType(CanContinueTypeEnum canContinueType) {
-//        this.canContinueType = canContinueType;
-//        return this;
-//    }
 
     public static ProcessResult s() {
         return new ProcessResult().setProcessResultType(ProcessResultTypeEnum.S);

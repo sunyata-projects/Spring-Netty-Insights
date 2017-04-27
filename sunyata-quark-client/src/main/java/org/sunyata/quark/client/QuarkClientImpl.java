@@ -24,7 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.sunyata.quark.client.dto.BusinessComponentDescriptor;
 import org.sunyata.quark.client.dto.BusinessComponentInstance;
+import org.sunyata.quark.client.json.Json;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,18 +37,28 @@ public class QuarkClientImpl implements QuarkClient {
     @Autowired(required = false)
     QuarkFeignClient quarkFeignClient;
 
+    @Override
     public JsonResponseResult create(String serialNo, String businName, String parameterString) {
         return quarkFeignClient.create(serialNo, businName, parameterString);
     }
 
+    @Override
+    public JsonResponseResult create(String serialNo, String businName, HashMap<String, Object> parameters) {
+        String encode = Json.encode(parameters);
+        return quarkFeignClient.create(serialNo, businName, encode);
+    }
+
+    @Override
     public JsonResponseResult<List<BusinessComponentDescriptor>> components() {
         return quarkFeignClient.components();
     }
 
+    @Override
     public JsonResponseResult run(String serialNo) {
         return quarkFeignClient.run(serialNo);
     }
 
+    @Override
     public JsonResponseResult<BusinessComponentInstance> instance(String serialNo) {
         return quarkFeignClient.instance(serialNo);
     }
