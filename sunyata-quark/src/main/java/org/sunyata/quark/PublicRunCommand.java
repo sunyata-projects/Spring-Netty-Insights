@@ -1,7 +1,6 @@
 package org.sunyata.quark;
 
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.*;
 import org.slf4j.LoggerFactory;
 import org.sunyata.quark.basic.ProcessResult;
 
@@ -19,6 +18,19 @@ public class PublicRunCommand extends HystrixCommand {
         this.serialNo = serialNo;
     }
 
+//    public PublicRunCommand(String serialNo) {
+//        super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("ExampleGroup"))
+//                .andCommandKey
+//                        (HystrixCommandKey.Factory.asKey("testWorkd")).andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey
+//                        ("testPool")).andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.defaultSetter()
+//                        .withCoreSize(1)));
+////        super(Setter.withGroupKey(HystrixCommandGroupKey.Factory.asKey("ExampleGroup"))
+////                .andCommandKey(HystrixCommandKey.Factory.asKey("HelloWorld"))
+////                .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey("HelloWorldPool")));
+////        HystrixThreadPoolProperties.defaultSetter().withCoreSize(10);
+//
+//        //this.name = name;
+//    }
     /**
      * 这个方法里面封装了正常的逻辑，我们可以传入正常的业务逻辑
      *

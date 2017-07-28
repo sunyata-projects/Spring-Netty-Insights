@@ -61,13 +61,13 @@
     <!--<logger name="org.springframework.web" level="ERROR">-->
         <!--<appender-ref ref="STDOUT"/>-->
     <!--</logger>-->
-    <logger name="org.springframework" level="INFO">
+    <logger name="org.springframework" level="ERROR">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="com.netflix" level="INFO">
+    <logger name="com.netflix" level="ERROR">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.sunyata" level="INFO">
+    <logger name="org.sunyata" level="DEBUG">
         <appender-ref ref="FILE"/>
     </logger>
 

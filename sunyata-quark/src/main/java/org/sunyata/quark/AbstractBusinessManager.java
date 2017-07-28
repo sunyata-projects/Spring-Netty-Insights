@@ -126,49 +126,10 @@ public abstract class AbstractBusinessManager implements BusinessManager {
     public void create(String serialNo, String businName, String sponsor, String relationId, String parameterString)
             throws Exception {
         create(serialNo, businName, sponsor, relationId, parameterString, false);
-//        if (parameterString == null || parameterString.trim().length() == 0) {
-//            throw new IllegalArgumentException("创建业务组件时,参数不能为空,参数名称:parameterString");
-//        }
-//        try {
-//            new JsonObject(parameterString);
-//        } catch (Exception ex) {
-//            throw ex;
-//        }
-////        long startTime = System.currentTimeMillis();   //获取开始时间
-//        BusinessInstanceStore bestService = ServiceLocator.getBestService(BusinessInstanceStore.class);
-//        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(businName);
-//        if (abstractBusinessComponent == null) {
-//            throw new CanNotFindComponentException("业务组件不存在" + businName);
-//        }
-//        BusinessComponentInstance instance = BusinessInstanceFactory.createInstance(serialNo, sponsor, relationId,
-//                parameterString, abstractBusinessComponent);
-////        long endTime = System.currentTimeMillis();   //获取开始时间
-////        logger.info("创建实例时间:"+String.valueOf(endTime - startTime) + "ms");
-//        bestService.create(instance);
     }
 
     public void run(String serialNo) throws Exception {
-//        BusinessInstanceLoader bestService = ServiceLocator.getBestService(BusinessInstanceLoader.class);
-//        BusinessComponentInstance instance = bestService.load(serialNo);
-//        if (instance == null) {
-//            throw new CanNotFindComponentInstanceException("businessInstance cannot be found");
-//        }
-//        instance.readOriginalHashCode();
-//        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
-//        if (abstractBusinessComponent == null) {
-//            String msg = "没有找到组件,名称为:" + instance.getBusinName();
-//            logger.error(msg);
-//            throw new CanNotFindComponentException(msg);
-//        }
-//
-//        BusinessContext context = BusinessContext.getContext(serialNo, abstractBusinessComponent, instance);
-//        context.setPrimary(true);
-//        context.setBusinessMode(instance.getBusinessMode());
-//        abstractBusinessComponent.getExecutor().run(context);
-//        logger.info("current thread(runBefore):{}", Thread.currentThread().getName());
-        runWithParameter(serialNo, true);
-//        logger.info("current thread(runAfter):{}", Thread.currentThread().getName());
-
+        runFastWithParameter(serialNo,true);
     }
 
 
@@ -245,86 +206,6 @@ public abstract class AbstractBusinessManager implements BusinessManager {
         }
     }
 
-    protected void publishContinue(ProcessResult result, BusinessContext businessContext) throws Exception {
-        //publish next quarkComponent
-        this.executorService.execute((Runnable) () -> {
-            if (result.getQuarkComponentInstance() != null) {
-                if (businessContext.getInstance().getCanContinue() == CanContinueTypeEnum.CanContinue) {
-                    try {
-                        EventPublisher.getPublisher().publish(businessContext.getSerialNo());
-                    } catch (Exception e) {
-                        logger.error(ExceptionUtils.getStackTrace(e));
-                    }
-                }
-            }
-        });
-
-    }
-
-    private void runWithParameter(String serialNo, boolean isPrimary) throws Exception {
-        //runWithParameter(serialNo, isPrimary, 0);
-        runFastWithParameter(serialNo, isPrimary);
-
-    }
-
-    private void runWithParameter(String serialNo, boolean isPrimary, long lockTimeOut) throws Exception {
-        runFastWithParameter(serialNo, isPrimary);
-//        logger.debug("quark业务组件开始执行,SerianNo:" + serialNo);
-//        BusinessLock lock = obtainBusinessLock(serialNo);
-//        logger.debug("quark业务组件开始执行,获取锁,SerianNo:" + serialNo);
-//        if (lockTimeOut == 0) {
-//            lock.acquire();
-//        } else {
-//            lock.acquire(lockTimeOut, TimeUnit.SECONDS);
-//        }
-//        ProcessResult run = null;
-//        BusinessContext context = null;
-//        BusinessComponentInstance instance = null;
-//        AbstractBusinessComponent abstractBusinessComponent = null;
-//        try {
-//            BusinessInstanceLoader bestService = ServiceLocator.getBestService(BusinessInstanceLoader.class);
-//            instance = bestService.load(serialNo);
-//            if (instance.getCanContinue() == CanContinueTypeEnum.CanNotContinue) {
-//                return;
-//            }
-//            instance.readOriginalHashCode();
-//            abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
-//            if (abstractBusinessComponent == null) {
-//                throw new CanNotFindComponentException("没有找到组件");
-//            }
-//            context = BusinessContext.getContext(serialNo, abstractBusinessComponent, instance);
-//            context.setPrimary(isPrimary);
-//            context.setBusinessMode(instance.getBusinessMode());
-//            run = abstractBusinessComponent.getExecutor().run(context);
-//        } finally {
-//            lock.release();
-//        }
-//        if (abstractBusinessComponent != null) {
-//            QuarkComponentInstance quarkComponentInstance = abstractBusinessComponent.getFlow()
-//                    .selectQuarkComponentInstance(context);
-//            if (quarkComponentInstance != null) {
-//                logger.info("publish current Thread:{},流水号:{}", Thread.currentThread().getName(), context.getSerialNo
-//                        ());
-//                publishContinue(run, context);
-//            }
-//        }
-
-    }
-
-    private void saveInstanceOutputParameters(BusinessComponentInstance instance, ProcessResult run) {
-        HashMap<String, Object> outputParameterMaps = run.getOutputParameterMaps();
-        if (outputParameterMaps != null && outputParameterMaps.size() > 0) {
-            HashMap<String, Object> outputParameters = instance.getOutputParameters();
-            if (outputParameters == null) {
-                outputParameters = new HashMap<>();
-            }
-            for (String key : outputParameterMaps.keySet()) {
-                outputParameters.put(key, outputParameterMaps.getOrDefault(key, ""));
-            }
-            instance.setOutputParameters(outputParameters);
-        }
-    }
-
     private void runFastWithParameter(String serialNo, boolean isPrimary) throws Exception {
         logger.debug("quark业务组件开始执行,SerianNo:" + serialNo);
         BusinessLock lock = obtainBusinessLock(serialNo);
@@ -353,6 +234,9 @@ public abstract class AbstractBusinessManager implements BusinessManager {
             while (true) {
                 ProcessResult run = new FastExecutor().run(context);
                 if (run.getProcessResultType() == ProcessResultTypeEnum.N) {//此模式不能继续
+                    if (isPrimary != context.isPrimary()) {//已经被改变过,不用再改变,会引起死循环
+                        break;
+                    }
                     //如果辅助线程,则换成主线程
                     //如果是主线程为什么不切换到辅助线程是因为重试需要一个时间等待,所以只有辅助时才切换
                     if (!isPrimary) {
@@ -399,6 +283,60 @@ public abstract class AbstractBusinessManager implements BusinessManager {
 
     }
 
+
+
+    @Override
+    public void retry() throws Exception {
+        BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
+        List<String> topNWillRetryBusiness = bestService.findTopNWillRetryBusiness(500);
+        logger.info("业务组件实例重试数量:{}", topNWillRetryBusiness.size());
+        BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
+        for (String serialNo : topNWillRetryBusiness) {
+            logger.debug("重试业务更新流水号为{}的业务组件最后时间", serialNo);
+            businessInstanceStore.updateBusinessComponentUpdateDateTime(serialNo, System.currentTimeMillis());
+            logger.info("开始重试,业务组件流水号:{},重试中...", serialNo);
+            new RetryCommand(this, serialNo).queue();
+            //retry(serialNo);
+
+        }
+    }
+
+    @Override
+    public void retry(String serialNo) throws Exception {
+        logger.info("[Quark业务重试]SerianNo:" + serialNo);
+        runFastWithParameter(serialNo, false);
+        logger.info("[Quark业务重试完成]SerianNo:" + serialNo);
+    }
+
+    @Override
+    public void reBegin() throws Exception {
+        BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
+        List<String> topNWillRetryBusiness = bestService.findPastTenMinutesWillReBeginBusiness();
+        logger.info("业务组件实例重新开始数量:{}", topNWillRetryBusiness.size());
+        BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
+        for (String serialNo : topNWillRetryBusiness) {
+            logger.info("重开job更新流水号为{}业务组件最后时间", serialNo);
+            businessInstanceStore.updateBusinessComponentUpdateDateTime(serialNo, System.currentTimeMillis());
+            new ReRunCommand(this, serialNo).queue();
+        }
+    }
+
+    public void compensate(String serialNo) throws Exception {
+        BusinessInstanceLoader bestService = ServiceLocator.getBestService(BusinessInstanceLoader.class);
+        BusinessComponentInstance instance = bestService.load(serialNo);
+        if (instance.getBusinessMode() != BusinessModeTypeEnum.Compensation) {
+            throw new Exception("此业务不可补偿");
+        }
+        instance.readOriginalHashCode();
+        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
+        if (abstractBusinessComponent == null) {
+            throw new CanNotFindComponentInstanceException("组件实例不存在,SerialNO:" + serialNo);
+        }
+
+        BusinessContext context = BusinessContext.getContext(serialNo, abstractBusinessComponent, instance);
+
+        abstractBusinessComponent.getExecutor().run(context);
+    }
     protected void writeLog(BusinessContext businessContext, List<ProcessResult> results) throws
             InstantiationException,
             IllegalAccessException, IOException {
@@ -424,99 +362,6 @@ public abstract class AbstractBusinessManager implements BusinessManager {
         }
         businessInstanceStore.writeLog(businessContext.getInstance(), logs);
     }
-
-    @Override
-    public void retry() throws Exception {
-        BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
-        List<String> topNWillRetryBusiness = bestService.findTopNWillRetryBusiness(500);
-        logger.info("业务组件实例重试数量:{}", topNWillRetryBusiness.size());
-        BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
-        for (String serialNo : topNWillRetryBusiness) {
-            logger.debug("重试业务更新流水号为{}的业务组件最后时间", serialNo);
-            businessInstanceStore.updateBusinessComponentUpdateDateTime(serialNo, System.currentTimeMillis());
-            logger.info("开始重试,业务组件流水号:{},重试中...", serialNo);
-            new RetryCommand(this, serialNo).queue();
-            //retry(serialNo);
-
-        }
-    }
-
-    @Override
-    public void retry(String serialNo) throws Exception {
-        logger.info("[Quark业务重试]SerianNo:" + serialNo);
-        runFastWithParameter(serialNo, false);
-        logger.info("[Quark业务重试完成]SerianNo:" + serialNo);
-//        logger.info("业务重试,SerianNo:" + serialNo);
-//        BusinessLock lock = obtainBusinessLock(serialNo);
-//        logger.info("获取锁,SerianNo:" + serialNo);
-//        lock.acquire();
-//        try {
-//            BusinessInstanceLoader bestService = ServiceLocator.getBestService(BusinessInstanceLoader.class);
-//            BusinessComponentInstance instance = bestService.load(serialNo);
-//            instance.readOriginalHashCode();
-//            AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
-//            if (abstractBusinessComponent == null) {
-//                throw new CanNotFindComponentException("没有找到组件");
-//            }
-//            BusinessContext context = BusinessContext.getContext(serialNo, abstractBusinessComponent, instance);
-//            context.setPrimary(false);
-//            context.setBusinessMode(instance.getBusinessMode());
-//            abstractBusinessComponent.getExecutor().run(context);
-//        }finally {
-//            lock.release();
-//        }
-    }
-
-//    public void retry() throws Exception {
-//        BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
-//        List<String> topNWillRetryBusiness = bestService.findTopNWillRetryBusiness(500);
-//        logger.info("业务组件实例重试数量:{}", topNWillRetryBusiness.size());
-//        for (String serialNo : topNWillRetryBusiness) {
-//            logger.info("开始重试,业务组件流水号:{},重试中...", serialNo);
-//            retry(serialNo);
-//        }
-//    }
-
-
-    //    public void reBegin() throws Exception {
-//        BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
-//        List<String> topNWillRetryBusiness = bestService.findPastTenMinutesWillReBeginBusiness();
-//        logger.info("业务组件实例重新开始数量:{}", topNWillRetryBusiness.size());
-//        for (String serialNo : topNWillRetryBusiness) {
-//            runWithParameter(serialNo, true, 3);
-//        }
-//    }
-    @Override
-    public void reBegin() throws Exception {
-        BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
-        List<String> topNWillRetryBusiness = bestService.findPastTenMinutesWillReBeginBusiness();
-        logger.info("业务组件实例重新开始数量:{}", topNWillRetryBusiness.size());
-        BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
-        for (String serialNo : topNWillRetryBusiness) {
-            logger.info("重开job更新流水号为{}业务组件最后时间", serialNo);
-            businessInstanceStore.updateBusinessComponentUpdateDateTime(serialNo, System.currentTimeMillis());
-//            run(serialNo);
-            new ReRunCommand(this,serialNo).queue();
-        }
-    }
-
-    public void compensate(String serialNo) throws Exception {
-        BusinessInstanceLoader bestService = ServiceLocator.getBestService(BusinessInstanceLoader.class);
-        BusinessComponentInstance instance = bestService.load(serialNo);
-        if (instance.getBusinessMode() != BusinessModeTypeEnum.Compensation) {
-            throw new Exception("此业务不可补偿");
-        }
-        instance.readOriginalHashCode();
-        AbstractBusinessComponent abstractBusinessComponent = getBusinessComponent(instance.getBusinName());
-        if (abstractBusinessComponent == null) {
-            throw new CanNotFindComponentInstanceException("组件实例不存在,SerialNO:" + serialNo);
-        }
-
-        BusinessContext context = BusinessContext.getContext(serialNo, abstractBusinessComponent, instance);
-
-        abstractBusinessComponent.getExecutor().run(context);
-    }
-
     private AbstractBusinessComponent getBusinessComponent(String businName) throws IllegalAccessException,
             InstantiationException {
         Class<? extends AbstractBusinessComponent> orDefault = maps.getOrDefault(businName, null);
@@ -565,4 +410,33 @@ public abstract class AbstractBusinessManager implements BusinessManager {
         BusinessLockService bestService = ServiceLocator.getBestService(BusinessLockService.class);
         return bestService.getLock("lock_" + path);
     }
+
+    private void saveInstanceOutputParameters(BusinessComponentInstance instance, ProcessResult run) {
+        HashMap<String, Object> outputParameterMaps = run.getOutputParameterMaps();
+        if (outputParameterMaps != null && outputParameterMaps.size() > 0) {
+            HashMap<String, Object> outputParameters = instance.getOutputParameters();
+            if (outputParameters == null) {
+                outputParameters = new HashMap<>();
+            }
+            for (String key : outputParameterMaps.keySet()) {
+                outputParameters.put(key, outputParameterMaps.getOrDefault(key, ""));
+            }
+            instance.setOutputParameters(outputParameters);
+        }
+    } protected void publishContinue(ProcessResult result, BusinessContext businessContext) throws Exception {
+        //publish next quarkComponent
+        this.executorService.execute((Runnable) () -> {
+            if (result.getQuarkComponentInstance() != null) {
+                if (businessContext.getInstance().getCanContinue() == CanContinueTypeEnum.CanContinue) {
+                    try {
+                        EventPublisher.getPublisher().publish(businessContext.getSerialNo());
+                    } catch (Exception e) {
+                        logger.error(ExceptionUtils.getStackTrace(e));
+                    }
+                }
+            }
+        });
+
+    }
+
 }

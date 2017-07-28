@@ -39,9 +39,10 @@ public class QuarkMessageListener implements ChannelAwareMessageListener {
             processService.process(jobInfo);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (BusinessComponentConstraintViolationException ex) {
-            logger.error("业务流水号冲突"+ ExceptionUtils.getFullStackTrace(ex));
+            logger.error("业务流水号冲突" + ExceptionUtils.getFullStackTrace(ex));
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
-        } catch (Exception ex){
+        } catch (Exception ex) {
+            logger.error("处理新消息时发生错误:" + ExceptionUtils.getFullStackTrace(ex));
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
         }
     }
