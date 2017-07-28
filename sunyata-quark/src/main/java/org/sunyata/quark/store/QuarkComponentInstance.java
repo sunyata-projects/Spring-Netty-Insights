@@ -33,6 +33,7 @@ import java.sql.Timestamp;
 public class QuarkComponentInstance implements Serializable {
 
 
+
     public String getSerialNo() {
         return serialNo;
     }
@@ -221,7 +222,10 @@ public class QuarkComponentInstance implements Serializable {
     /**
      * 已经执行次数
      */
-    private Integer executeTimes;
+    private Integer executeTimes = 0;
+
+    private String targetQuarkName;
+
 //    /**
 //     * 是否能继续
 //     */
@@ -260,4 +264,12 @@ public class QuarkComponentInstance implements Serializable {
     }
 
 
+    public QuarkComponentInstance setTargetQuarkName(String targetQuarkName) {
+        this.targetQuarkName = targetQuarkName;
+        return this;
+    }
+
+    public String getTargetQuarkName() {
+        return targetQuarkName;
+    }
 }

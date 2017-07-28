@@ -21,6 +21,7 @@
 package org.sunyata.quark.descriptor;
 
 import org.sunyata.quark.basic.AbstractQuarkComponent;
+import org.sunyata.quark.exception.CanNotFindAnnotationException;
 import org.sunyata.quark.stereotype.QuarkComponent;
 
 /**
@@ -35,10 +36,11 @@ public class QuarkComponentDescriptorFactory {
                     .setClazz(clazz)
                     .setVersion(annotation.version())
                     .setQuarkName(annotation.quarkName())
-                    .setQuarkFriendlyName(annotation.quarkFriendlyName());
+                    .setQuarkFriendlyName(annotation.quarkFriendlyName())
+                    .setTargetQuarkName(annotation.quarkName());
             //T service = ServiceLocator.getLocator().getService(clazz);
         } else {
-            throw new Exception("业务组件没有定义标注");
+            throw new CanNotFindAnnotationException("业务组件没有定义标注");
         }
     }
 }

@@ -21,8 +21,11 @@
 package org.sunyata.quark.synchronization;
 
 import org.sunyata.quark.basic.*;
-import org.sunyata.quark.store.QuarkComponentInstance;
+import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
 import org.sunyata.quark.store.BusinessComponentInstance;
+import org.sunyata.quark.store.QuarkComponentInstance;
+
+import java.sql.Timestamp;
 
 /**
  * Created by leo on 17/3/22.
@@ -33,7 +36,7 @@ public class DefaultStateSynchronization implements StateSynchronization {
                           ProcessResult
                                   processResult) throws Exception {
         if (businessContext.getBusinessMode() != BusinessModeTypeEnum.Normal) {
-            throw new Exception("非正常业务模式");
+            throw new Exception("同步状态时出错,非正向业务模式,SerialNo:" + businessContext.getSerialNo());
         }
 
         if (processResult.getProcessResultType() == ProcessResultTypeEnum.S) {
@@ -43,7 +46,7 @@ public class DefaultStateSynchronization implements StateSynchronization {
         } else if (processResult.getProcessResultType() == ProcessResultTypeEnum.E) {
             syncForEStatus(businessComponent, businessContext, processResult);
         } else {
-            throw new Exception("无法识别的处理结果");
+            throw new Exception("同步状态时出错,无法识别的处理结果,SerialNO:" + businessContext.getSerialNo());
         }
     }
 
@@ -59,7 +62,7 @@ public class DefaultStateSynchronization implements StateSynchronization {
                                 ProcessResult
                                         processResult) throws Exception {
         if (processResult.getProcessResultType() != ProcessResultTypeEnum.S) {
-            throw new Exception("状态不正确定");
+            throw new Exception("同步成功执行状态时出错,状态应为成功(S)");
         }
         QuarkComponentInstance quarkComponentInstance = processResult.getQuarkComponentInstance();
         quarkComponentInstance.setProcessResult(ProcessResultTypeEnum.S);
@@ -80,7 +83,7 @@ public class DefaultStateSynchronization implements StateSynchronization {
                                 ProcessResult
                                         processResult) throws Exception {
         if (processResult.getProcessResultType() != ProcessResultTypeEnum.R) {
-            throw new Exception("状态不正确定");
+            throw new Exception("同步存疑执行状态时出错,状态应为存疑(R)");
         }
         QuarkComponentInstance quarkComponentInstance = processResult.getQuarkComponentInstance();
         quarkComponentInstance.setProcessResult(ProcessResultTypeEnum.R);
@@ -91,8 +94,9 @@ public class DefaultStateSynchronization implements StateSynchronization {
                 .getExecuteTimes();
         quarkComponentInstance.setExecuteTimes(++executeTimes);
 
-        if (executeTimes > processResult.getQuarkComponentDescriptor().getOptions().getRetryLimitTimes()) {
+        if (executeTimes >= processResult.getQuarkComponentDescriptor().getOptions().getRetryLimitTimes()) {
 //            quarkComponentInstance.setCanContinue(CanContinueTypeEnum.CanNotContinue);
+            instance.setNeedToRetry(false);
         } else {
             instance.setNeedToRetry(true);
         }
@@ -112,7 +116,7 @@ public class DefaultStateSynchronization implements StateSynchronization {
                                 ProcessResult
                                         processResult) throws Exception {
         if (processResult.getProcessResultType() != ProcessResultTypeEnum.E) {
-            throw new Exception("状态不正确定");
+            throw new Exception("同步失败执行状态时出错,状态应为失败(E)");
         }
         QuarkComponentInstance quarkComponentInstance = processResult.getQuarkComponentInstance();
         quarkComponentInstance.setProcessResult(ProcessResultTypeEnum.E);
@@ -142,7 +146,7 @@ public class DefaultStateSynchronization implements StateSynchronization {
      * @param processResult
      */
     private void syncBusinessStatus(AbstractBusinessComponent businessComponent, BusinessContext businessContext,
-                                    ProcessResult processResult) {
+                                    ProcessResult processResult) throws Exception {
         /**********以下是整体业务状态逻辑**********/
         //          所有节点均成功:标记为成功
         //          必须成功节点均已成功,其它非必须成功节点状态不等于初始化 :标记为部分成功
@@ -150,19 +154,54 @@ public class DefaultStateSynchronization implements StateSynchronization {
         //          必须成功节点未知的重试次数未超限:标记为进行中
         //          必须成功节点未知的重试次数超限:标记为失败
         BusinessComponentInstance instance = businessContext.getInstance();
-        //业务是否执行完毕,不能继续
-        long count = instance.getItems().stream().filter(p -> p.getProcessResult() == ProcessResultTypeEnum.I || (p
-                .getProcessResult() == ProcessResultTypeEnum.R && (p.getExecuteTimes() == null ? 0 : p
-                .getExecuteTimes()) < processResult
-                .getQuarkComponentDescriptor().getOptions().getRetryLimitTimes())).count();
-        if (count > 0) {
-            instance.setCanContinue(CanContinueTypeEnum.CanContinue);
-        } else {
-            instance.setCanContinue(CanContinueTypeEnum.CanNotContinue);
+        boolean canContinue = true;
+        instance.setCanContinue(CanContinueTypeEnum.CanContinue);
+        int length = instance.getItems().size();
+        for (int i = 0; i < length; i++) {
+            QuarkComponentInstance quarkComponentInstance = instance.getItems().get(i);
+            QuarkComponentDescriptor quarkComponentDescriptor = businessComponent.getFlow()
+                    .getQuarkComponentDescriptor(quarkComponentInstance.getQuarkName(),
+                            quarkComponentInstance.getOrderby(), quarkComponentInstance.getSubOrder());
+            if (i != length - 1) {//不是最后一个
+                if (quarkComponentInstance.getContinueType() == ContinueTypeEnum.Succeed) {
+                    if (quarkComponentInstance.getProcessResult() == ProcessResultTypeEnum.I) {
+                    } else if (quarkComponentInstance.getProcessResult() == ProcessResultTypeEnum.R) {
+                        int executeTimes = quarkComponentInstance.getExecuteTimes() == null ? 0 :
+                                quarkComponentInstance.getExecuteTimes();
+                        if (executeTimes >= quarkComponentDescriptor.getOptions()
+                                .getRetryLimitTimes()) {
+                            canContinue = false;
+                        }
+                    } else if (quarkComponentInstance.getProcessResult() == ProcessResultTypeEnum.E) {
+                        canContinue = false;
+                    }
+                }
+            } else {//最后一个
+                if (quarkComponentInstance.getProcessResult() == ProcessResultTypeEnum.S) {
+                    canContinue = false;
+                } else if (quarkComponentInstance.getProcessResult() == ProcessResultTypeEnum.R) {
+                    int executeTimes = quarkComponentInstance.getExecuteTimes() == null ? 0 : quarkComponentInstance
+                            .getExecuteTimes();
+
+                    if (executeTimes >= quarkComponentDescriptor.getOptions()
+                            .getRetryLimitTimes()) {
+                        canContinue = false;
+                    }
+                } else if (quarkComponentInstance.getProcessResult() == ProcessResultTypeEnum.E) {
+                    canContinue = false;
+                } else {//I
+                }
+            }
+            if (!canContinue) {
+                instance.setCanContinue(CanContinueTypeEnum.CanNotContinue);
+                break;
+            }
         }
+        long count = 0;
         if (instance.getCanContinue() == CanContinueTypeEnum.CanNotContinue) {//业务不能继续
 
-            count = instance.getItems().stream().filter(p -> p.getProcessResult() == ProcessResultTypeEnum.S).count();
+            count = instance.getItems().stream().filter(p -> p.getProcessResult() == ProcessResultTypeEnum.S)
+                    .count();
             if (count == instance.getItems().size()) {// 所有节点均成功:标记为成功
                 instance.setBusinStatus(BusinessStatusTypeEnum.Success);
                 return;
@@ -187,16 +226,20 @@ public class DefaultStateSynchronization implements StateSynchronization {
             long count2 = instance.getItems().stream().filter(p -> p.getContinueType() == ContinueTypeEnum.Succeed)
                     .count();
 
-            if (count == count2) {
+            if (count == count2) {//因为以上已经判断过所有节点均已经成功的情况,所以这里只可能出现部分成功
                 instance.setBusinStatus(BusinessStatusTypeEnum.PartialSuccess);
                 return;
             }
-
-
         } else {
             instance.setBusinStatus(BusinessStatusTypeEnum.InProgress);
         }
 
+        instance.setUpdateDateTime(new Timestamp(System.currentTimeMillis()));
+//        if (processResult.getQuarkComponentDescriptor().isAsync()) {
+//            if (processResult.getProcessResultType() == ProcessResultTypeEnum.R) {
+//
+//            }
+//        }
     }
 
 

@@ -42,6 +42,9 @@ public class BusinessContext implements Serializable {
     private BusinessComponentInstance instance;
     private QuarkComponentDescriptor currentQuarkDescriptor;
     private String currentQuarkSerialNo;
+    private int manualComponentIndex;
+    private ProcessResult quarkNotifyProcessResult;
+    private String quarkServiceName;
 
 
     public Object getParameter(String key, Object defaultValue) {
@@ -70,7 +73,8 @@ public class BusinessContext implements Serializable {
 //        context.setParameters(this.getParameters());
         context.setSerialNo(this.getSerialNo());
         context.setInstance(this.getInstance());
-        context.setCurrentQuarkDescriptor(this.getCurrentQuarkDescriptor().setClazz(null));
+        context.setQuarkServiceName(this.getQuarkServiceName());
+        context.setCurrentQuarkDescriptor(this.getCurrentQuarkDescriptor());
         context.setCurrentQuarkSerialNo(this.getCurrentQuarkSerialNo());
         return context;
     }
@@ -153,5 +157,29 @@ public class BusinessContext implements Serializable {
 
     public String getCurrentQuarkSerialNo() {
         return currentQuarkSerialNo;
+    }
+
+    public int getManualComponentIndex() {
+        return manualComponentIndex;
+    }
+
+    public void setManualComponentIndex(int manualComponentIndex) {
+        this.manualComponentIndex = manualComponentIndex;
+    }
+
+    public ProcessResult getQuarkNotifyProcessResult() {
+        return quarkNotifyProcessResult;
+    }
+
+    public void setQuarkNotifyProcessResult(ProcessResult quarkNotifyProcessResult) {
+        this.quarkNotifyProcessResult = quarkNotifyProcessResult;
+    }
+
+    public void setQuarkServiceName(String quarkServiceName) {
+        this.quarkServiceName = quarkServiceName;
+    }
+
+    public String getQuarkServiceName() {
+        return quarkServiceName;
     }
 }

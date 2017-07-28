@@ -21,6 +21,7 @@
 package org.sunyata.quark.descriptor;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.sunyata.quark.basic.AbstractQuarkComponent;
 import org.sunyata.quark.basic.ContinueTypeEnum;
 import org.sunyata.quark.basic.QuarkComponentOptions;
@@ -35,13 +36,30 @@ import java.io.Serializable;
 public class QuarkComponentDescriptor implements Serializable, Validator {
 
     private ContinueTypeEnum continueType = ContinueTypeEnum.Succeed;
+
+    @JsonIgnore()
     private Class<? extends AbstractQuarkComponent> clazz = null;
+
     private QuarkComponentOptions options = new QuarkComponentOptions();
     private String quarkName;
     private String quarkFriendlyName;
     private String version;
     private Integer order;
     private Integer subOrder;
+    private boolean async;
+    private String targetQuarkName;
+
+
+    public String getTargetQuarkName() {
+        return targetQuarkName;
+    }
+
+    public QuarkComponentDescriptor setTargetQuarkName(String targetQuarkName) {
+        this.targetQuarkName = targetQuarkName;
+        return this;
+    }
+
+
 
     public Integer getOrder() {
         return order;
@@ -71,7 +89,7 @@ public class QuarkComponentDescriptor implements Serializable, Validator {
     }
 
 
-
+    @JsonIgnore()
     public Class<? extends AbstractQuarkComponent> getClazz() {
         return clazz;
     }
@@ -89,10 +107,10 @@ public class QuarkComponentDescriptor implements Serializable, Validator {
     }
 
 
-    public QuarkComponentDescriptor setOptions(QuarkComponentOptions options) {
-        this.options = options;
-        return this;
-    }
+//    public QuarkComponentDescriptor setOptions(QuarkComponentOptions options) {
+//        this.options = options;
+//        return this;
+//    }
 
 
     public ContinueTypeEnum getContinueType() {
@@ -133,6 +151,32 @@ public class QuarkComponentDescriptor implements Serializable, Validator {
 
     public String getQuarkFriendlyName() {
         return quarkFriendlyName;
+    }
+
+    public boolean isAsync() {
+        return async;
+    }
+
+    public QuarkComponentDescriptor setAsync(boolean async) {
+        this.async = async;
+        return this;
+    }
+
+    public QuarkComponentDescriptor add(QuarkComponentOptions options) {
+        for (String key : options.keys()) {
+            this.options.put(key, options.getValue(key, null));
+        }
+        return this;
+    }
+
+    public QuarkComponentDescriptor add(String key, Object value) {
+        this.options.put(key, value);
+        return this;
+    }
+
+    public QuarkComponentDescriptor setOptions(QuarkComponentOptions quarkComponentOptions) {
+        this.options = quarkComponentOptions;
+        return this;
     }
 }
 

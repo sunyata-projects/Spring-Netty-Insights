@@ -33,7 +33,8 @@ public enum ProcessResultTypeEnum {
     S("S"),
 //    W("W"),
     R("R"),
-    E("E");
+    E("E"),
+    N("N");
     /**
      * 描述
      */

@@ -21,8 +21,13 @@
 package org.sunyata.quark.basic;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunyata.quark.descriptor.BusinessComponentDescriptor;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
+import org.sunyata.quark.exception.CanNotExecuteException;
+import org.sunyata.quark.exception.CanNotFindAnnotationException;
+import org.sunyata.quark.exception.CanNotFindQuarkDescriptorException;
 import org.sunyata.quark.executor.DefaultExecutor;
 import org.sunyata.quark.executor.Executor;
 import org.sunyata.quark.ioc.ServiceLocator;
@@ -37,6 +42,7 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
 
     private TFlow flow;
     private TExecutor executor;
+    Logger logger = LoggerFactory.getLogger(AbstractBusinessComponent.class);
 
     public BusinessComponentDescriptor getBusinessComponentDescriptor() throws Exception {
         if (businessComponentDescriptor == null) {
@@ -63,7 +69,7 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
                     .setDescription(annotation.description())
                     .setCompensationSwitch(annotation.compensationSwitch());
         } else {
-            throw new Exception("业务组件没有定义标注");
+            throw new CanNotFindAnnotationException("业务组件没有定义标注");
         }
     }
 
@@ -106,24 +112,42 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
         QuarkComponentDescriptor quarkComponentDescriptor = null;
         try {
             quarkComponentInstance = flow.selectQuarkComponentInstance(businessContext);
-            if (quarkComponentInstance != null) {
-                quarkComponentDescriptor = flow
-                        .getQuarkComponentDescriptor(quarkComponentInstance.getQuarkName(),
-                                quarkComponentInstance.getOrderby(), quarkComponentInstance.getSubOrder());
-                if (quarkComponentDescriptor == null) {
-                    throw new Exception("can not found quarkComponent");
+            if (quarkComponentInstance == null) {
+                if (businessContext.getBusinessMode() == BusinessModeTypeEnum.Normal) {
+                    String msg = "此业务正向模式不能继续,SerialNO:" + businessContext.getSerialNo();
+                    throw new CanNotExecuteException(msg);
+                } else {
+                    String msg = "此业务补偿模式不能继续,SerialNO:" + businessContext.getSerialNo();
+                    logger.error(msg);
+                    throw new CanNotExecuteException(msg);
                 }
-                AbstractQuarkComponent quarkComponent = ServiceLocator.getLocator().getService
-                        (quarkComponentDescriptor.getClazz());
-                businessContext.setCurrentQuarkDescriptor(quarkComponentDescriptor);
-                businessContext.setCurrentQuarkSerialNo(quarkComponentInstance.getSerialNo());
-                result = quarkComponent.run(businessContext);
-
-            } else {
-
             }
+
+            quarkComponentDescriptor = flow
+                    .getQuarkComponentDescriptor(quarkComponentInstance.getQuarkName(),
+                            quarkComponentInstance.getOrderby(), quarkComponentInstance.getSubOrder());
+            if (quarkComponentDescriptor == null) {
+                String msg = "can not found quarkComponentDescriptor" + quarkComponentDescriptor.getQuarkName();
+                logger.error(msg);
+                throw new CanNotFindQuarkDescriptorException(msg);
+            }
+            AbstractQuarkComponent quarkComponent = ServiceLocator.getLocator().getService
+                    (quarkComponentDescriptor.getClazz());
+            logger.debug("获取quark组件实例成功,Clazz:" + quarkComponentDescriptor.getClazz().getName());
+            businessContext.setCurrentQuarkDescriptor(quarkComponentDescriptor);
+            businessContext.setCurrentQuarkSerialNo(quarkComponentInstance.getSerialNo());
+            logger.info("quark开始执行,Name:" + quarkComponentDescriptor.getTargetQuarkName());
+            long begin = System.currentTimeMillis();
+            result = quarkComponent.run(businessContext);
+            long end = System.currentTimeMillis();
+            result.setTotalMillis(end - begin);
+            logger.info("quark执行完毕,Name:" + quarkComponentDescriptor.getTargetQuarkName());
+        }catch (CanNotExecuteException ex){
+            throw ex;
         } catch (Exception ex) {
-            result.setProcessResultString(ExceptionUtils.getStackTrace(ex));
+            String stackTrace = ExceptionUtils.getStackTrace(ex);
+            logger.error(stackTrace);
+            result.setMessage(stackTrace);
         } finally {
             result.setQuarkComponentInstance(quarkComponentInstance);
             result.setQuarkComponentDescriptor(quarkComponentDescriptor);

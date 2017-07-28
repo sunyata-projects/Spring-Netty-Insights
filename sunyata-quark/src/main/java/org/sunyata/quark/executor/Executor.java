@@ -21,10 +21,11 @@
 package org.sunyata.quark.executor;
 
 import org.sunyata.quark.basic.BusinessContext;
+import org.sunyata.quark.basic.ProcessResult;
 
 /**
  * Created by leo on 16/12/14.
  */
 public interface Executor {
-    void run(BusinessContext businessContext) throws Exception;
+    ProcessResult run(BusinessContext businessContext) throws Exception;
 }

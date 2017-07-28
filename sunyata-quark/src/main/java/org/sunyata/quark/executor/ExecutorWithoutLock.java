@@ -33,13 +33,14 @@ public class ExecutorWithoutLock extends AbstractExecutor {
     Logger logger = LoggerFactory.getLogger(DefaultExecutor.class);
 
     @Override
-    public void run(BusinessContext businessContext) throws Exception {
+    public ProcessResult run(BusinessContext businessContext) throws Exception {
         ProcessResult result = ProcessResult.r();
         try {
             result = execute(businessContext);
         } catch (Throwable ex) {
             logger.error(ExceptionUtils.getStackTrace(ex));
         }
-        this.publishContinue(result, businessContext);
+        //this.publishContinue(businessContext.getSerialNo());
+        return result;
     }
 }

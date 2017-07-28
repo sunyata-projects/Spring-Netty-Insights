@@ -34,15 +34,26 @@ import java.util.List;
 public interface QuarkClient {
 
 
-    JsonResponseResult create(String serialNo, String businName, String parameterString);
+    JsonResponseResult create(String serialNo, String businName, String sponsor, String relationId, String
+            parameterString, boolean autoRun) throws Exception;
 
-    JsonResponseResult create(String serialNo, String businName, HashMap<String, Object> parameters);
+    JsonResponseResult create(String serialNo, String businName, String parameterString, boolean autoRun) throws
+            Exception;
 
-    JsonResponseResult<List<BusinessComponentDescriptor>> components();
+    void createAsync(String serialNo, String businName, String parameterString, boolean autoRun);
+
+    JsonResponseResult create(String serialNo, String businName, HashMap<String, Object> parameters, boolean autoRun)
+            throws Exception;
+
+    JsonResponseResult<List<BusinessComponentDescriptor>> components() throws Exception;
 
 
-    JsonResponseResult run(String serialNo);
+    JsonResponseResult run(String serialNo) throws Exception;
+
+    void runAsync(String serialNo);
+
+    JsonResponseResult runByManual(String serialNo, Integer quarkIndex, String parameterString) throws Exception;
 
 
-    JsonResponseResult<BusinessComponentInstance> instance(String serialNo);
+    JsonResponseResult<BusinessComponentInstance> instance(String serialNo) throws Exception;
 }

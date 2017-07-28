@@ -104,6 +104,16 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
         }
     }
 
+    @Override
+    public void writeLog(BusinessComponentInstance instance, List<QuarkComponentLog> quarkComponentLogs) throws IOException {
+
+    }
+
+    @Override
+    public void updateBusinessComponentUpdateDateTime(String serialNo, long updateDateTime) {
+
+    }
+
 
     @Override
     public BusinessComponentInstance load(String serialNo) throws IOException {
@@ -132,8 +142,13 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
     }
 
     @Override
-    public List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n) {
+    public List<String> findTopNWillRetryBusiness(Integer n) {
         PageHelper.startPage(0, n, "updateDateTime");
         return businessMapper.findTopNWillRetryBusiness(n);
+    }
+
+    @Override
+    public List<String> findPastTenMinutesWillReBeginBusiness() {
+        return null;
     }
 }

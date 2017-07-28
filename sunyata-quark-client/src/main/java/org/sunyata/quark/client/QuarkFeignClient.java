@@ -20,11 +20,9 @@
 
 package org.sunyata.quark.client;
 
-import org.springframework.cloud.netflix.feign.FeignClient;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import feign.Headers;
+import feign.Param;
+import feign.RequestLine;
 import org.sunyata.quark.client.dto.BusinessComponentDescriptor;
 import org.sunyata.quark.client.dto.BusinessComponentInstance;
 
@@ -33,41 +31,46 @@ import java.util.List;
 /**
  * Created by leo on 17/4/1.
  */
-@FeignClient(value = "quark-service",path = "business",fallback = QuarkFeignClient.QuarkFeignClientHystrix.class)
+//@FeignClient(value = "quark-service", path = "business", fallback = QuarkFeignClient.QuarkFeignClientHystrix.class)
 //@FeignClient(name = "quark-service",path = "business")
+@Headers("Accept: application/json")
 public interface QuarkFeignClient {
-    @Component
-    public class QuarkFeignClientHystrix implements QuarkFeignClient {
+//    @RequestLine("POST")
+//    @Headers("Content-Type: application/json")
+//        //@RequestMapping(method = RequestMethod.POST, value = "/create")
+//    JsonResponseResult create(@Param("serialNo") String serialNo, @Param("businName") String businName, @Param
+//            ("parameterString") String parameterString, @Param("autoRun") boolean autoRun) throws Exception;
 
-        public JsonResponseResult create(@RequestParam(value = "serialNo") String serialNo, @RequestParam(value =
-                "businName") String businName, @RequestParam(value = "parameterString") String parameterString) {
-            return JsonResponseResult.Error(99, "服务访问异常");
-        }
+    @RequestLine("GET")
+    @Headers("Content-Type: application/json")
+        //@RequestMapping(method = RequestMethod.GET, value = "/components")
+    JsonResponseResult<List<BusinessComponentDescriptor>> components() throws Exception;
 
-        public JsonResponseResult<List<BusinessComponentDescriptor>> components() {
-            return JsonResponseResult.Error(99, "服务访问异常");
-        }
+    @RequestLine("POST")
+    @Headers("Content-Type: application/json")
+        //@RequestMapping(method = RequestMethod.POST, value = "/run")
+    JsonResponseResult run(@Param(value = "serialNo") String serialNo) throws Exception;
 
-        public JsonResponseResult run(@RequestParam(value = "serialNo") String serialNo) {
-            return JsonResponseResult.Error(99, "服务访问异常");
-        }
+    @RequestLine("POST")
+    @Headers("Content-Type: application/json")
+        //@RequestMapping(method = RequestMethod.POST, value = "/runByManual")
+    JsonResponseResult runByManual(@Param(value = "serialNo") String serialNo, @Param(value =
+            "quarkIndex") Integer quarkIndex, @Param(value = "parameterString") String
+                                           parameters) throws Exception;
 
-        public JsonResponseResult<BusinessComponentInstance> instance(@RequestParam(value = "serialNo") String
-                                                                              serialNo) {
-            return JsonResponseResult.Error(99, "服务访问异常");
-        }
-    }
+    @RequestLine("GET")
+    @Headers("Content-Type: application/json")
+        //@RequestMapping(method = RequestMethod.GET, value = "/instance")
+    JsonResponseResult<BusinessComponentInstance> instance(@Param(value = "serialNo") String serialNo) throws Exception;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/create")
-    JsonResponseResult create(@RequestParam(value = "serialNo") String serialNo, @RequestParam(value = "businName")
-    String businName, @RequestParam(value = "parameterString") String parameterString);
-
-    @RequestMapping(method = RequestMethod.GET, value = "/components")
-    JsonResponseResult<List<BusinessComponentDescriptor>> components();
-
-    @RequestMapping(method = RequestMethod.POST, value = "/run")
-    JsonResponseResult run(@RequestParam(value = "serialNo") String serialNo);
-
-    @RequestMapping(method = RequestMethod.GET, value = "/instance")
-    JsonResponseResult<BusinessComponentInstance> instance(@RequestParam(value = "serialNo") String serialNo);
+    @RequestLine("POST")
+    @Headers("Content-Type: application/json")
+        //@RequestMapping(method = RequestMethod.POST, value = "/create")
+    JsonResponseResult create(@Param("serialNo") String serialNo,
+                              @Param("businName") String businName,
+                              @Param("sponsor") String sponsor,
+                              @Param("relationId") String relationId,
+                              @Param("parameterString") String parameterString,
+                              @Param("autoRun") boolean autoRun)
+            throws Exception;
 }

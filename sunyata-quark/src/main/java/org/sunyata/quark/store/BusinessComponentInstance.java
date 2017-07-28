@@ -197,6 +197,30 @@ public class BusinessComponentInstance implements Serializable {
         return this;
     }
 
+    public BusinessComponentInstance setOutputParameter(String key, Object value) {
+        if (this.outputParameters == null) {
+            this.outputParameters = new HashMap<>();
+        }
+        this.outputParameters.put(key, value);
+        return this;
+    }
+    public String getRelationId() {
+        return relationId;
+    }
+
+    public BusinessComponentInstance setRelationId(String relationId) {
+        this.relationId = relationId;
+        return this;
+    }
+
+    public String getSponsor() {
+        return sponsor;
+    }
+
+    public BusinessComponentInstance setSponsor(String sponsor) {
+        this.sponsor = sponsor;
+        return this;
+    }
     private HashMap<String, Object> outputParameters = new HashMap<>();
 //    private QuarkParameter quarkParameterContext;
 
@@ -277,6 +301,16 @@ public class BusinessComponentInstance implements Serializable {
     private boolean needToRetry;
 
 
+    /**
+     * 发起方
+     */
+    private String sponsor;
+
+
+    /**
+     * 关联的业务id
+     */
+    private String relationId;
     @Override
     public int hashCode() {
         //return super.hashCode();

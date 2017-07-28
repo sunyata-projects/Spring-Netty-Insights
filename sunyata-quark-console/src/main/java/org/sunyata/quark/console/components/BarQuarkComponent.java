@@ -45,7 +45,7 @@ public class BarQuarkComponent extends AbstractQuarkComponent<BarQuarkComponent.
         @Override
         public QuarkParameterInfo parse(BusinessContext context) throws Exception {
 //            if (context.getBusinessComponent().getBusinessComponentDescriptor().getBusinName() == "") {
-            String parameterString = context.getInstance().getParameterString();
+            String parameterString = context.getInstance().getQuarkParameter().getParameter();
             JsonObject jsonObject = new JsonObject(parameterString);
             String field1 = jsonObject.getString("field1");
             return new BarQuarkParameterInfo().setField1(field1);
@@ -57,14 +57,14 @@ public class BarQuarkComponent extends AbstractQuarkComponent<BarQuarkComponent.
     }
 
     @Override
-    protected ProcessResult execute(BarQuarkParameterInfo parameterInfo) {
+    public ProcessResult execute(BarQuarkParameterInfo parameterInfo) {
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
         return ProcessResult.e();
     }
 
     @Override
-    protected ProcessResult compensate(BarQuarkParameterInfo parameterInfo) {
+    public ProcessResult compensate(BarQuarkParameterInfo parameterInfo) {
         return null;
     }
 

@@ -37,7 +37,7 @@ import java.sql.Timestamp;
 public class BusinessInstanceFactory {
     public static QuarkComponentLog createQuarkComponentLog(String businSerialNo, String serialNo, String
             quarkName, String version, String quarkFriendlyName, ProcessResultTypeEnum processResult, String notes,
-                                                            String processResultString) {
+                                                            String processResultString, String totalMilliseconds) {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         return new QuarkComponentLog()
                 .setBusinSerialNo(businSerialNo)
@@ -48,11 +48,12 @@ public class BusinessInstanceFactory {
                 .setProcessResult(processResult)
                 .setNotes(notes)
                 .setProcessResultString(processResultString)
-                .setCreateDateTime(timestamp);
+                .setCreateDateTime(timestamp)
+                .setTotalMilliseconds(totalMilliseconds);
     }
 
-    public static BusinessComponentInstance createInstance(String serialNo, String parameterString,
-                                                           AbstractBusinessComponent component) throws Exception {
+    public static BusinessComponentInstance createInstance(String serialNo, String sponsor, String relationId, String
+            parameterString, AbstractBusinessComponent component) throws Exception {
 
         BusinessComponentDescriptor businessComponentDescriptor = component
                 .getBusinessComponentDescriptor();
@@ -70,7 +71,9 @@ public class BusinessInstanceFactory {
                 .setBusinStatus(BusinessStatusTypeEnum.Initialize)
                 .setNeedToRetry(false)
                 .setBusinessMode(BusinessModeTypeEnum.Normal)
-                .setUpdateDateTime(timestamp);
+                .setUpdateDateTime(timestamp)
+                .setSponsor(sponsor)
+                .setRelationId(relationId);
         QuarkParameter quarkParameter = new QuarkParameter().setParameter(parameterString).setBusinessSerialNo(serialNo)
                 .setParameterType(1);
         result.setQuarkParameter(quarkParameter);
@@ -83,6 +86,7 @@ public class BusinessInstanceFactory {
                         .setVersion(quarkComponentDescriptor.getVersion())
                         .setQuarkName(quarkComponentDescriptor.getQuarkName())
                         .setQuarkFriendlyName(quarkComponentDescriptor.getQuarkFriendlyName())
+                        .setTargetQuarkName(quarkComponentDescriptor.getTargetQuarkName())
 //                        .setCanContinue(CanContinueTypeEnum.CanContinue)
                         .setExecuteTimes(0)
                         .setProcessResult(ProcessResultTypeEnum.I)

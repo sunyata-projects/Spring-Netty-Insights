@@ -73,6 +73,7 @@ public class QuarkComponentLog implements Serializable {
      * 执行结果输出
      */
     private String processResultString;
+    private String totalMilliseconds;
 
 
     public String getBusinSerialNo() {
@@ -164,5 +165,14 @@ public class QuarkComponentLog implements Serializable {
     public QuarkComponentLog setProcessResultString(String processResultString) {
         this.processResultString = processResultString;
         return this;
+    }
+
+    public QuarkComponentLog setTotalMilliseconds(String totalMilliseconds) {
+        this.totalMilliseconds = totalMilliseconds;
+        return this;
+    }
+
+    public String getTotalMilliseconds() {
+        return totalMilliseconds;
     }
 }

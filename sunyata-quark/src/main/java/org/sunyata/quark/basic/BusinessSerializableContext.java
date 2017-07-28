@@ -39,6 +39,7 @@ public class BusinessSerializableContext implements Serializable {
     private BusinessComponentInstance instance;
     private QuarkComponentDescriptor currentQuarkDescriptor;
     private String currentQuarkSerialNo;
+    private String quarkServiceName;
 
 
     public static BusinessSerializableContext getContext(String serialNo, AbstractBusinessComponent
@@ -108,5 +109,13 @@ public class BusinessSerializableContext implements Serializable {
 
     public String getCurrentQuarkSerialNo() {
         return currentQuarkSerialNo;
+    }
+
+    public void setQuarkServiceName(String quarkServiceName) {
+        this.quarkServiceName = quarkServiceName;
+    }
+
+    public String getQuarkServiceName() {
+        return quarkServiceName;
     }
 }

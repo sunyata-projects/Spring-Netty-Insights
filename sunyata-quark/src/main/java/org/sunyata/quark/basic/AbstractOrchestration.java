@@ -23,7 +23,6 @@ package org.sunyata.quark.basic;
 import org.sunyata.quark.descriptor.BusinessComponentDescriptor;
 import org.sunyata.quark.descriptor.MutltipleQuarkComponentDescriptor;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
-import org.sunyata.quark.ioc.ServiceLocator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,8 @@ public abstract class AbstractOrchestration<T extends Flow> implements Orchestra
     @Override
     public <T extends Flow> T orchestrate(Class<T> tClass) {
         try {
-            T service = ServiceLocator.getLocator().getService(tClass);
+
+            T service = tClass.newInstance();// ServiceLocator.getLocator().getService(tClass);
             service.setProcessSequencing(this.processSequencing);
             service.setBusinessComponentDescriptor(this.businessComponentDescriptor);
             service.setOrchestration(this);
@@ -66,7 +66,7 @@ public abstract class AbstractOrchestration<T extends Flow> implements Orchestra
 
     public AbstractOrchestration<T> beginWith(Class<? extends AbstractQuarkComponent> clazz) {
         processSequencing.clear();
-        return add(new QuarkComponentDescriptor().setClazz(clazz).setOptions(new QuarkComponentOptions()));
+        return add(new QuarkComponentDescriptor().setClazz(clazz));
     }
 
     public AbstractOrchestration<T> beginWith(QuarkComponentDescriptor melodiesMeta) {
@@ -97,7 +97,7 @@ public abstract class AbstractOrchestration<T extends Flow> implements Orchestra
     public AbstractOrchestration<T> beginWith(Class<? extends AbstractQuarkComponent> clazz, QuarkComponentOptions
             options) {
         processSequencing.clear();
-        return add(new QuarkComponentDescriptor().setClazz(clazz).setOptions(options));
+        return add(new QuarkComponentDescriptor().setClazz(clazz).add(options));
     }
 
     public AbstractOrchestration<T> next(Class<? extends AbstractQuarkComponent> clazz) {
@@ -110,7 +110,7 @@ public abstract class AbstractOrchestration<T extends Flow> implements Orchestra
 
     public AbstractOrchestration<T> next(Class<? extends AbstractQuarkComponent> clazz, QuarkComponentOptions
             options) {
-        return add(new QuarkComponentDescriptor().setClazz(clazz).setOptions(options));
+        return add(new QuarkComponentDescriptor().setClazz(clazz));
     }
 
     public AbstractOrchestration<T> parallel(MutltipleQuarkComponentDescriptor melodiesMeta) {

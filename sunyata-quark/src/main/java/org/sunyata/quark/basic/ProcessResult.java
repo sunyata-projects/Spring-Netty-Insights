@@ -34,7 +34,18 @@ public class ProcessResult implements Serializable {
     private ProcessResultTypeEnum processResultType;//处理结果
     private QuarkComponentInstance quarkComponentInstance;
     private QuarkComponentDescriptor quarkComponentDescriptor;
-    private String processResultString;//接口返回数据
+    private String message;//接口返回数据
+    private Object body;//返回的消息体
+    private long totalMillis;
+
+    public Object getBody() {
+        return body;
+    }
+
+    public ProcessResult setBody(Object body) {
+        this.body = body;
+        return this;
+    }
 
     public HashMap<String, Object> getOutputParameterMaps() {
         return outputParameterMaps;
@@ -58,12 +69,12 @@ public class ProcessResult implements Serializable {
     }
 
 
-    public String getProcessResultString() {
-        return processResultString;
+    public String getMessage() {
+        return message;
     }
 
-    public ProcessResult setProcessResultString(String processResultString) {
-        this.processResultString = processResultString;
+    public ProcessResult setMessage(String message) {
+        this.message = message;
         return this;
     }
 
@@ -88,6 +99,10 @@ public class ProcessResult implements Serializable {
         return new ProcessResult().setProcessResultType(ProcessResultTypeEnum.R);
     }
 
+    public static ProcessResult n() {
+        return new ProcessResult().setProcessResultType(ProcessResultTypeEnum.N);
+    }
+
 //    public static ProcessResult w() {
 //        return new ProcessResult().setProcessResultType(ProcessResultTypeEnum.W).setCanContinueType
 //                (CanContinueTypeEnum.CanContinue);
@@ -107,5 +122,13 @@ public class ProcessResult implements Serializable {
 
     public QuarkComponentDescriptor getQuarkComponentDescriptor() {
         return quarkComponentDescriptor;
+    }
+
+    public void setTotalMillis(long totalMillis) {
+        this.totalMillis = totalMillis;
+    }
+
+    public long getTotalMillis() {
+        return totalMillis;
     }
 }

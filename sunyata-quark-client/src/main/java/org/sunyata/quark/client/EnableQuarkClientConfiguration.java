@@ -35,4 +35,5 @@ import org.springframework.context.annotation.Configuration;
 @EnableFeignClients
 @EnableHystrix
 public class EnableQuarkClientConfiguration {
+
 }

@@ -21,6 +21,7 @@
 package org.sunyata.quark.provider.springcloud;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.retry.annotation.EnableRetry;
 
 import java.lang.annotation.*;
 
@@ -31,6 +32,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(EnableQuarkClientConfiguration.class)
+@EnableRetry
 public @interface EnableQuarkProvider {
 
 }

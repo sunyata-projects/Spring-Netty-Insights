@@ -25,7 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyata.quark.basic.BusinessContext;
 import org.sunyata.quark.basic.ProcessResult;
-import org.sunyata.quark.lock.BusinessLock;
+import org.sunyata.quark.exception.CanNotExecuteException;
+import org.sunyata.quark.json.Json;
 
 /**
  * Created by leo on 16/12/14.
@@ -34,18 +35,23 @@ public class DefaultExecutor extends AbstractExecutor {
     Logger logger = LoggerFactory.getLogger(DefaultExecutor.class);
 
     @Override
-    public void run(BusinessContext businessContext) throws Exception {
+    public ProcessResult run(BusinessContext businessContext) throws Exception {
         ProcessResult result = ProcessResult.r();
-        BusinessLock lock = obtainBusinessLock(businessContext.getSerialNo());
-        lock.acquire();
         try {
+            logger.info("Exector开始执行,SerianNo:" + businessContext.getSerialNo());
             result = execute(businessContext);
+            logger.info("Exector执行完毕,SerianNo:" + businessContext.getSerialNo() + ",Result:" + Json.encode(result));
+        } catch (CanNotExecuteException canNotEx) {
+            //logger.error(canNotEx.getMessage());
         } catch (Throwable ex) {
-            logger.error(ExceptionUtils.getStackTrace(ex));
+            logger.error("出错,SerialNo:" + businessContext.getSerialNo() + ",错误信息:" + ExceptionUtils.getStackTrace(ex));
             throw ex;
         } finally {
-            lock.release();
+            //lock.release();
         }
-        this.publishContinue(result, businessContext);
+//        if (result.getProcessResultType() == ProcessResultTypeEnum.S) {
+//            //this.publishContinue(result, businessContext);
+//        }
+        return result;
     }
 }

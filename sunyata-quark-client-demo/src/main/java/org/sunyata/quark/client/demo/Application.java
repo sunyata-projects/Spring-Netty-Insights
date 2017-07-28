@@ -24,9 +24,11 @@ package org.sunyata.quark.client.demo;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.sunyata.quark.client.EnableQuarkClient;
+import org.sunyata.quark.provider.springcloud.EnableQuarkProvider;
 
 @SpringBootApplication
 @EnableQuarkClient
+@EnableQuarkProvider
 public class Application {
 
     public static void main(String[] args) {

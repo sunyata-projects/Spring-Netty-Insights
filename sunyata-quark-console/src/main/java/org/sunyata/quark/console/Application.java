@@ -37,17 +37,15 @@ public class Application {
 
     public static final void main(String[] args) throws Exception {
         businessManager = new DefaultBusinessManager();
-        businessManager.setScanPackage("org.sunyata.quark.console.components");
         businessManager.setEventPublisher(SimpleEventEventPublisher.class);
         businessManager.setServiceLocator(SimpleServiceLocator.class);
-        businessManager.initialize();
 
 
         IdWorker worker = new IdWorker(0, 0);
         for (int i = 0; i < 1; i++) {
             String s3 = String.valueOf(worker.nextId());
             String encode = Json.encode(new QuarkParameterInfo());
-            businessManager.create(s3, "ParallelBusinessComponent", encode);
+            businessManager.create(s3, null, null, "ParallelBusinessComponent", encode);
             businessManager.run(s3);
         }
         System.in.read();

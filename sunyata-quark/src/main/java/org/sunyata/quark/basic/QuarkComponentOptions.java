@@ -21,6 +21,7 @@
 package org.sunyata.quark.basic;
 
 import java.io.Serializable;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -38,9 +39,14 @@ public class QuarkComponentOptions implements Serializable {
     }
 
     private ConcurrentMap<String, Object> parameters = new ConcurrentHashMap<>();
+
     public QuarkComponentOptions put(String key, Object value) {
         parameters.put(key, value);
         return this;
+    }
+
+    public Set<String> keys() {
+        return parameters.keySet();
     }
 
     public Object getValue(String key, String defaultValue) {
@@ -48,7 +54,7 @@ public class QuarkComponentOptions implements Serializable {
     }
 
     public QuarkComponentOptions() {
-        retryLimitTimes = 3;
+        retryLimitTimes = 8;
         canCancel = true;
     }
 
@@ -59,7 +65,11 @@ public class QuarkComponentOptions implements Serializable {
     }
 
     public QuarkComponentOptions setRetryLimitTimes(Integer retryLimitTimes) {
-        this.retryLimitTimes = retryLimitTimes;
+        if (retryLimitTimes == -1) {
+            this.retryLimitTimes = Integer.MAX_VALUE;
+        } else {
+            this.retryLimitTimes = retryLimitTimes;
+        }
         return this;
     }
 

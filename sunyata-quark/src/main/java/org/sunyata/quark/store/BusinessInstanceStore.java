@@ -21,15 +21,20 @@
 package org.sunyata.quark.store;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by leo on 16/12/11.
  */
 public interface BusinessInstanceStore {
 
-    void create(BusinessComponentInstance instance);
+    void create(BusinessComponentInstance instance) throws Exception;
 
     void writeLog(BusinessComponentInstance instance, QuarkComponentLog quarkComponentLog) throws IOException;
+
+    void writeLog(BusinessComponentInstance instance, List<QuarkComponentLog> quarkComponentLogs) throws IOException;
+
+    void updateBusinessComponentUpdateDateTime(String serialNo, long updateDateTime);
 
 
 

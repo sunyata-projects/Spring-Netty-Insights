@@ -20,6 +20,8 @@
 
 package org.sunyata.quark.basic;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunyata.quark.descriptor.BusinessComponentDescriptor;
 import org.sunyata.quark.descriptor.MutltipleQuarkComponentDescriptor;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
@@ -37,6 +39,7 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractFlow implements Flow {
 
+    Logger logger = LoggerFactory.getLogger(AbstractFlow.class);
     private ProcessSequencing processSequencing;
     private BusinessComponentDescriptor businessComponentDescriptor;
     private Orchestration orchestration;
@@ -71,7 +74,7 @@ public abstract class AbstractFlow implements Flow {
 
     @Override
     public MutltipleQuarkComponentDescriptor getCurrentMultipleQuarkComponentDescriptor(BusinessComponentInstance
-                                                                                               instance) {
+                                                                                                instance) {
         return null;
     }
 
@@ -132,7 +135,8 @@ public abstract class AbstractFlow implements Flow {
 
         while (iterator.hasNext()) {
             MutltipleQuarkComponentDescriptor next = iterator.next();
-            QuarkComponentDescriptor descriptor = next.getItems().stream().filter(p ->
+            List<QuarkComponentDescriptor> items = next.getItems();
+            QuarkComponentDescriptor descriptor = items.stream().filter(p ->
                     p.getQuarkName().equals(code) && Objects.equals(p.getOrder(),
                             order) && Objects.equals(p.getSubOrder(), subOrder)).findFirst().orElse(null);
             if (descriptor != null) {
@@ -153,6 +157,16 @@ public abstract class AbstractFlow implements Flow {
             }
         });
         List<QuarkComponentInstance> collect = sortedStream.collect(Collectors.toList());
+
+        StringBuilder sb = new StringBuilder();
+        logger.info("流水号为:{}的quark实例列表", businessContext.getSerialNo());
+        sb.append(System.getProperty("line.separator"));
+        for (QuarkComponentInstance instance : collect) {
+            sb.append(instance.getTargetQuarkName() + "--" + instance.getOrderby() + "--" + instance.getSubOrder()
+                    + "--" + instance.getProcessResult().getLabel());
+            sb.append(System.getProperty("line.separator"));
+        }
+        logger.info(sb.toString());
         //第一个i
         QuarkComponentInstance instance = collect.stream().filter(p -> p.getProcessResult() == ProcessResultTypeEnum.I)
                 .findFirst().orElse(null);
@@ -173,10 +187,11 @@ public abstract class AbstractFlow implements Flow {
         }
         boolean b = list.stream().anyMatch(p -> (p.getProcessResult() != ProcessResultTypeEnum.S && (p
                 .getContinueType() == ContinueTypeEnum.Succeed)));
-        if (b) {
-            return null;
-        }
-        return instance;
+        return b ? null : instance;
+//        if (b) {
+//            return null;
+//        }
+//        return instance;
     }
 
     protected QuarkComponentInstance selectSecondaryQuarkComponent(BusinessContext businessContext) {
@@ -191,9 +206,9 @@ public abstract class AbstractFlow implements Flow {
         });
 
         //第一个r
-        QuarkComponentInstance instance = sortedStream.filter(p -> p.getProcessResult() == ProcessResultTypeEnum.R
-                && (p.getExecuteTimes() == null ? 0 : p.getExecuteTimes()) < getQuarkComponentDescriptor(p
-                .getQuarkName(), p.getOrderby(), p.getSubOrder()).getOptions().getRetryLimitTimes()).findFirst()
+        QuarkComponentInstance instance = sortedStream.filter(p -> p.getProcessResult() == ProcessResultTypeEnum.R &&
+                p.getExecuteTimes() <= getQuarkComponentDescriptor(p.getQuarkName(), p.getOrderby(), p.getSubOrder()).getOptions().getRetryLimitTimes())
+                .findFirst()
                 .orElse(null);
         return instance;
     }

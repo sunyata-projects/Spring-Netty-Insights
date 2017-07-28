@@ -68,7 +68,7 @@ public class BarQuarkComponent extends AbstractQuarkComponent<BarQuarkComponent.
     public ProcessResult execute(BarQuarkParameterInfo parameterInfo) {
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
-        return ProcessResult.e().setOutputParameter("money",3000);
+        return ProcessResult.s().setOutputParameter("money",3000);
     }
 
     @Override

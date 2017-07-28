@@ -21,26 +21,39 @@
 package org.sunyata.quark;
 
 import org.sunyata.quark.basic.AbstractBusinessComponent;
+import org.sunyata.quark.basic.ProcessResult;
 import org.sunyata.quark.descriptor.BusinessComponentDescriptor;
 import org.sunyata.quark.ioc.ServiceLocator;
 import org.sunyata.quark.publish.EventPublisher;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by leo on 16/12/14.
  */
 public interface BusinessManager {
 
-    void setScanPackage(String scanPackages);
+    void initialize(ExecutorService executor) ;
 
-    void initialize() throws Exception;
+    void initialize(Collection<Object> names) throws Exception;
 
-    void create(String serialNo, String businName, String parameterString) throws Exception;
+    void create(String serialNo, String businName, String sponsor, String relationId, String parameterString) throws
+            Exception;
+
+    void create(String serialNo, String businName, String sponsor, String relationId, String parameterString,boolean
+            autoRun)
+            throws
+            Exception;
 
     void run(String serialNo) throws Exception;
 
+    ProcessResult runByManual(String serialNo, int quarkIndex, String parameters) throws Exception;
+
     void retry(String serialNo) throws Exception;
+
+    void reBegin() throws Exception;
 
     void retry() throws Exception;
 
@@ -52,4 +65,6 @@ public interface BusinessManager {
     <T extends EventPublisher> void setEventPublisher(Class<T> eventPublisherClass);
 
     List<BusinessComponentDescriptor> getComponents() throws Exception;
+
+    void quarkNotify(String serialNo, Integer quarkIndex, ProcessResult result) throws Exception;
 }

@@ -20,8 +20,8 @@
 
 package org.sunyata.quark.basic;
 
-import org.sunyata.quark.store.QuarkComponentInstance;
 import org.sunyata.quark.store.BusinessComponentInstance;
+import org.sunyata.quark.store.QuarkComponentInstance;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,9 +48,14 @@ public interface BusinessQueryService {
      * @param n
      * @return
      */
-    List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n);
+    List<String> findTopNWillRetryBusiness(Integer n);
+
+
+    List<String> findPastTenMinutesWillReBeginBusiness();
+
 
     List<QuarkComponentInstance> findQuarkComponentInstances(String serialNo) throws IOException;
+
 
 //    BusinessComponentInstance findBusinessComponentInstance(String serialNo) throws IOException;
 }

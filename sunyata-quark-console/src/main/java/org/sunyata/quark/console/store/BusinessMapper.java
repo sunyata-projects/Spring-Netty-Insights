@@ -72,7 +72,7 @@ public interface BusinessMapper {
 
     @Select("SELECT * FROM BusinessComponent WHERE businessMode = 'Normal' and needToRetry=1 and " +
             "canContinue='CanContinue'")
-    List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n);
+    List<String> findTopNWillRetryBusiness(Integer n);
 //
 //    @Insert("INSERT INTO USER(NAME, AGE) VALUES(#{name}, #{age})")
 //    int insert(@Param("name") String name, @Param("age") Integer age);

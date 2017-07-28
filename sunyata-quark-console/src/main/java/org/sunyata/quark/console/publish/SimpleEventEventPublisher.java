@@ -20,6 +20,8 @@
 
 package org.sunyata.quark.console.publish;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sunyata.quark.console.Application;
 import org.sunyata.quark.publish.EventPublisher;
 
@@ -27,10 +29,12 @@ import org.sunyata.quark.publish.EventPublisher;
  * Created by leo on 17/3/16.
  */
 public class SimpleEventEventPublisher implements EventPublisher {
+    Logger logger = LoggerFactory.getLogger(SimpleEventEventPublisher.class);
     @Override
     public void publish(String serialNo) throws Exception {
 //        SpringContextUtil.getApplicationContext().publishEvent(new BusinessComponentEvent(serialNo).setSerialNo
 //                (serialNo));
+        logger.info("SimpleEventEventPublisher current Thread:{}",Thread.currentThread().getName());
         Application.businessManager.run(serialNo);
     }
 }

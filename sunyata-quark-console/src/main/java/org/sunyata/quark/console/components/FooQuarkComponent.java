@@ -36,13 +36,13 @@ public class FooQuarkComponent extends AbstractQuarkComponent {
     }
 
     @Override
-    protected ProcessResult execute(QuarkParameterInfo parameterInfo) {
+    public ProcessResult execute(QuarkParameterInfo parameterInfo) {
         System.out.println("hello world" + Thread.currentThread().getName());
         return ProcessResult.r();
     }
 
     @Override
-    protected ProcessResult compensate(QuarkParameterInfo parameterInfo) {
+    public ProcessResult compensate(QuarkParameterInfo parameterInfo) {
         return null;
     }
 
