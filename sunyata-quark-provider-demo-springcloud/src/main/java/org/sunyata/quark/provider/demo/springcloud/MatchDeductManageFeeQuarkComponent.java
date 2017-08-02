@@ -25,9 +25,11 @@ import org.sunyata.quark.basic.AbstractQuarkComponent;
 import org.sunyata.quark.basic.BusinessContext;
 import org.sunyata.quark.basic.ProcessResult;
 import org.sunyata.quark.basic.QuarkParameterInfo;
+import org.sunyata.quark.client.json.Json;
 import org.sunyata.quark.json.JsonObject;
 import org.sunyata.quark.stereotype.QuarkComponent;
 
+import java.util.HashMap;
 import java.util.Random;
 
 /**
@@ -75,7 +77,12 @@ public class MatchDeductManageFeeQuarkComponent extends AbstractQuarkComponent<M
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
         Thread.sleep(r.nextInt(5000));
-        return ProcessResult.s().setOutputParameter("money", 3000);
+        HashMap<String, String> infos = new HashMap<>();
+        infos.put("key1", "value1");
+        infos.put("key3", "value3");
+        infos.put("key4", "value4");
+        infos.put("key5", "value5");
+        return ProcessResult.s().setOutputParameter("MatchDeductManageFeeQuarkComponent", Json.encode(infos));
     }
 
     @Override

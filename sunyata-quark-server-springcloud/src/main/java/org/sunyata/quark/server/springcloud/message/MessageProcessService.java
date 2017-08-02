@@ -4,14 +4,15 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.sunyata.quark.BusinessManager;
+import org.sunyata.quark.MessageQueueService;
+import org.sunyata.quark.QuarkExecutor;
 import org.sunyata.quark.json.Json;
 import org.sunyata.quark.message.ComplexMessageInfo;
 import org.sunyata.quark.message.CreateBusinessComponentMessageInfo;
 import org.sunyata.quark.message.MessageInfoType;
 import org.sunyata.quark.message.RunBySerialMessageInfo;
+import org.sunyata.quark.store.BusinessComponentInstance;
 
 /**
  * Created by leo on 17/5/10.
@@ -22,11 +23,10 @@ public class MessageProcessService {
     final Logger logger = LoggerFactory.getLogger(MessageProcessService.class);
 
     @Autowired(required = true)
-    @Qualifier("asyncBusinessManager")
-    BusinessManager asyncBusinessManager;
+    QuarkExecutor businessManager;
 
-    @Autowired(required = true)
-    BusinessManager syncBusinessManager;
+    @Autowired
+    MessageQueueService messageQueueService;
 
     public void process(ComplexMessageInfo jobInfo) throws Exception {
         try {
@@ -60,20 +60,26 @@ public class MessageProcessService {
     public void create(String serialNo, String businName, String sponsor, String relationId, String parameterString,
                        boolean autoRun)
             throws Exception {
+        BusinessComponentInstance instance = null;
         try {
-            syncBusinessManager.create(serialNo, businName, sponsor, relationId, parameterString, false);
+            instance = businessManager.create(serialNo, businName, sponsor, relationId,
+                    parameterString, false);
         } catch (Exception ex) {
             logger.error(ExceptionUtils.getStackTrace(ex));
             throw ex;
         }
+        logger.info("落盘完成,开始执行");
         if (autoRun) {
-           asyncBusinessManager.run(serialNo);
+            logger.info("开始入Queue:{}", serialNo);
+            long delay = instance.getCreateDateTime().getTime() - System.currentTimeMillis();
+            messageQueueService.enQueue(instance.getBusinName(),instance.getBusinName(), delay, serialNo, true);
+            logger.info("入Queue完成:{}", serialNo);
         }
     }
 
     public void run(String serialNo) throws Exception {
         try {
-            asyncBusinessManager.run(serialNo);
+            businessManager.run(serialNo);
         } catch (Exception ex) {
             logger.error(ExceptionUtils.getStackTrace(ex));
         }

@@ -28,7 +28,7 @@
 //    BusinessManager asyncBusinessManager;
 //
 //    @Autowired(required = true)
-//    BusinessManager syncBusinessManager;
+//    BusinessManager businessManager;
 //
 //    @Retryable(value = {Exception.class}, maxAttempts = 5, backoff = @Backoff(delay = 10000l, multiplier = 2))
 //    public void process(ComplexMessageInfo jobInfo) throws Exception {
@@ -64,7 +64,7 @@
 //                       boolean autoRun)
 //            throws Exception {
 //        try {
-//            syncBusinessManager.create(serialNo, businName, sponsor, relationId, parameterString, autoRun);
+//            businessManager.create(serialNo, businName, sponsor, relationId, parameterString, autoRun);
 //            if (autoRun) {
 //                asyncBusinessManager.run(serialNo);
 //            }

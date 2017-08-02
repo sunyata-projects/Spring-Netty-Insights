@@ -428,12 +428,12 @@ public class ConcurrentReferenceHashMap<K, V> extends AbstractMap<K, V> implemen
         }
 
         /**
-         * Apply an writeLog operation to this segment.
-         * The segment will be locked during the writeLog.
+         * Apply an syncBusinessStatus operation to this segment.
+         * The segment will be locked during the syncBusinessStatus.
          *
          * @param hash the hash of the key
          * @param key  the key
-         * @param task the writeLog operation
+         * @param task the syncBusinessStatus operation
          * @return the result of the operation
          */
         public <T> T doTask(final int hash, final Object key, final Task<T> task) {

@@ -20,14 +20,20 @@
 
 package org.sunyata.quark.provider.demo.springcloud;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.sunyata.quark.basic.AbstractQuarkComponent;
 import org.sunyata.quark.basic.BusinessContext;
 import org.sunyata.quark.basic.ProcessResult;
 import org.sunyata.quark.basic.QuarkParameterInfo;
+import org.sunyata.quark.client.IdWorker;
+import org.sunyata.quark.client.QuarkClient;
+import org.sunyata.quark.json.Json;
 import org.sunyata.quark.json.JsonObject;
 import org.sunyata.quark.stereotype.QuarkComponent;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -70,11 +76,31 @@ public class MatchInitRewardQuarkComponent extends AbstractQuarkComponent<MatchI
 
     Random r = new Random();
 
+    @Autowired
+    QuarkClient quarkClient;
+
     @Override
     public ProcessResult execute(BarQuarkParameterInfo parameterInfo) throws InterruptedException {
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
         Thread.sleep(r.nextInt(3000));
+        IdWorker idWorker = new IdWorker(5, 0);
+        for (int i = 0; i < 10; i++) {
+            org.sunyata.quark.client.dto.QuarkParameterInfo info = new org.sunyata.quark.client.dto
+                    .QuarkParameterInfo();
+
+            String serialNo = String.valueOf(idWorker.nextId());
+            HashMap<String, Object> parameters = new HashMap<>();
+            parameters.put("key1", "value1");
+            parameters.put("key2", "value2");
+            parameters.put("key3", "value3");
+            parameters.put("key4", "value4");
+//            quarkClient.createAsync(serialNo, "MatchRewardForSinglePlayerComponent", "", parameterInfo
+//                    .getBusinessContext().getSerialNo(), Json.encode(parameters), true);
+        }
+        String matchDeductManageFeeQuarkComponent = (String)parameterInfo.getBusinessContext().getParameter
+                ("MatchDeductManageFeeQuarkComponent", null);
+        Map map = Json.decodeValue(matchDeductManageFeeQuarkComponent, Map.class);
         return ProcessResult.s().setOutputParameter("money", 3000);
     }
 

@@ -28,7 +28,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunyata.quark.basic.BusinessQueryService;
+import org.sunyata.quark.store.BusinessQueryService;
 import org.sunyata.quark.store.*;
 
 import java.io.IOException;
@@ -91,7 +91,7 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
     }
 
     @Override
-    public void writeLog(BusinessComponentInstance instance, QuarkComponentLog quarkComponentLog) throws IOException {
+    public void syncBusinessStatus(BusinessComponentInstance instance, QuarkComponentLog quarkComponentLog) throws IOException {
         try (SqlSession session = getSqlSessionFactory().openSession(false)) {
             BusinessMapper mapper = session.getMapper(BusinessMapper.class);
             mapper.updateBusinessComponent(instance);
@@ -105,7 +105,7 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
     }
 
     @Override
-    public void writeLog(BusinessComponentInstance instance, List<QuarkComponentLog> quarkComponentLogs) throws IOException {
+    public void syncBusinessStatus(BusinessComponentInstance instance, List<QuarkComponentLog> quarkComponentLogs) throws IOException {
 
     }
 
@@ -142,13 +142,14 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
     }
 
     @Override
-    public List<String> findTopNWillRetryBusiness(Integer n) {
+    public List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n) {
         PageHelper.startPage(0, n, "updateDateTime");
-        return businessMapper.findTopNWillRetryBusiness(n);
+//        return businessMapper.findTopNWillRetryBusiness(n);
+        return null;
     }
 
     @Override
-    public List<String> findPastTenMinutesWillReBeginBusiness() {
+    public List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness() {
         return null;
     }
 }

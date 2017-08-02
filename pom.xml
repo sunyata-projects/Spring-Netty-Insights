@@ -25,6 +25,7 @@
         <module>sunyata-quark-provider-demo-springcloud</module>
         <module>../sunyata-quark-hystrix-dashboard</module>
         <module>sunyata-quark-hystrix-dashboard</module>
+        <module>sunyata-quark-hystrix-dashboard-without-stream</module>
     </modules>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

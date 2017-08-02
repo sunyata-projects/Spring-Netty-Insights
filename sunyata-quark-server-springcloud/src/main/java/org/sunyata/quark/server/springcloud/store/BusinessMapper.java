@@ -29,9 +29,6 @@ import org.sunyata.quark.store.QuarkParameter;
 import java.sql.Timestamp;
 import java.util.List;
 
-/**
- * Created by leo on 17/3/20.
- */
 @Mapper
 public interface BusinessMapper {
     @Insert("INSERT INTO BusinessComponent(serialNo, businName,businFriendlyName,version," +
@@ -51,7 +48,7 @@ public interface BusinessMapper {
             "VALUES(#{serialNo}, #{businSerialNo},#{quarkName},#{quarkFriendlyName},#{targetQuarkName},#{version}," +
             "#{createDateTime}," +
             "#{orderby},#{subOrder},#{processResult},#{continueType})")
-    int insertByAtomicComponent(QuarkComponentInstance atomicComponent);
+    int insertByQuarkComponent(QuarkComponentInstance quarkComponent);
 
     @Update("UPDATE BusinessComponent SET businStatus=#{businStatus},notes=#{notes}," +
             "businessMode=#{businessMode},needToRetry=${needToRetry},canContinue=#{canContinue}, " +
@@ -61,14 +58,14 @@ public interface BusinessMapper {
 
     @Update("UPDATE QuarkComponent SET processResult=#{processResult},notes=#{notes}," +
             "executeTimes=#{executeTimes} WHERE serialNo=#{serialNo}")
-    void updateAtomicComponent(QuarkComponentInstance businessComponentInstance);
+    void updateQuarkComponent(QuarkComponentInstance businessComponentInstance);
 
     //    int insertByUser(User user);
     @Select("SELECT * FROM BusinessComponent WHERE serialNo = #{serialNo}")
     BusinessComponentInstance findBySerialNo(@Param("serialNo") String serialNo);
 
     @Select("SELECT * FROM QuarkComponent WHERE businSerialNo = #{serialNo}")
-    List<QuarkComponentInstance> findAtomicComponentInstances(@Param("serialNo") String serialNo);
+    List<QuarkComponentInstance> findQuarkComponentInstances(@Param("serialNo") String serialNo);
 
     @Insert("INSERT INTO QuarkComponentLog(serialNo,businSerialNo,quarkName,quarkFriendlyName,version," +
             "createDateTime,processResult,notes,processResultString,totalMilliseconds) " +
@@ -77,14 +74,14 @@ public interface BusinessMapper {
             "#{processResult},#{notes},#{processResultString},#{totalMilliseconds})")
     void insertByComponentLog(QuarkComponentLog quarkComponentLog);
 
-    @Select("SELECT serialNo FROM BusinessComponent WHERE TIMEDIFF(now(),updateDateTime) >'00:08:00' and  " +
+    @Select("SELECT * FROM BusinessComponent WHERE TIMEDIFF(now(),updateDateTime) >'00:02:00' and  " +
             "businessMode = 'Normal' and needToRetry=1 and canContinue='CanContinue' order by updateDateTime")
-    List<String> findTopNWillRetryBusiness(Integer n);
+    List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n);
 
 
-    @Select("select serialNo from BusinessComponent where TIMEDIFF(now(),createDateTime) >'00:10:00' and businStatus " +
+    @Select("select * from BusinessComponent where TIMEDIFF(now(),createDateTime) >'00:10:00' and businStatus " +
             "= 'Initialize' order by updateDateTime ;")
-    List<String> findPastTenMinutesWillReBeginBusiness();
+    List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness();
 
 
 
@@ -111,7 +108,7 @@ public interface BusinessMapper {
 //    int insertByUser(User user);
 //
 //    @Update("UPDATE user SET age=#{age} WHERE name=#{name}")
-//    void writeLog(User user);
+//    void syncBusinessStatus(User user);
 //    @Delete("DELETE FROM user WHERE id =#{id}")
 //    void delete(Long id);
 //

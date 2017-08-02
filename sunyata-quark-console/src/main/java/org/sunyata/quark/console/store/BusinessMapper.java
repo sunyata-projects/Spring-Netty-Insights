@@ -84,7 +84,7 @@ public interface BusinessMapper {
 //    int insertByUser(User user);
 //
 //    @Update("UPDATE user SET age=#{age} WHERE name=#{name}")
-//    void writeLog(User user);
+//    void syncBusinessStatus(User user);
 //    @Delete("DELETE FROM user WHERE id =#{id}")
 //    void delete(Long id);
 //

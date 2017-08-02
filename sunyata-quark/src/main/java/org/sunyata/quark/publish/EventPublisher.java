@@ -46,5 +46,5 @@ public interface EventPublisher {
         return getServiceLocatorFactory().getPublisher();
     }
 
-    void publish(String serialNo) throws Exception;
+    void publish(String no, String serialNo) throws Exception;
 }

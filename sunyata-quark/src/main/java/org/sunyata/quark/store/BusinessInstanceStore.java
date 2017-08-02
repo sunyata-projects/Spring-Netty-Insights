@@ -28,14 +28,17 @@ import java.util.List;
  */
 public interface BusinessInstanceStore {
 
+    BusinessComponentInstance load(String serialNo) throws IOException;
     void create(BusinessComponentInstance instance) throws Exception;
 
-    void writeLog(BusinessComponentInstance instance, QuarkComponentLog quarkComponentLog) throws IOException;
+    void syncBusinessStatus(BusinessComponentInstance instance, QuarkComponentLog quarkComponentLog) throws IOException;
 
-    void writeLog(BusinessComponentInstance instance, List<QuarkComponentLog> quarkComponentLogs) throws IOException;
+    void syncBusinessStatus(BusinessComponentInstance instance, List<QuarkComponentLog> quarkComponentLogs) throws
+            IOException;
+
+    void syncBusinessStatus(BusinessComponentInstance instance);
 
     void updateBusinessComponentUpdateDateTime(String serialNo, long updateDateTime);
-
 
 
 }

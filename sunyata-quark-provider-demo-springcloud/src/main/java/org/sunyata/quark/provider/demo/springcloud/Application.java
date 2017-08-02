@@ -24,11 +24,13 @@ package org.sunyata.quark.provider.demo.springcloud;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+import org.sunyata.quark.client.EnableQuarkClient;
 import org.sunyata.quark.provider.springcloud.EnableQuarkProvider;
 
 @SpringBootApplication
 @EnableQuarkProvider
 @EnableHystrix
+@EnableQuarkClient
 public class Application {
 
 //    @Autowired

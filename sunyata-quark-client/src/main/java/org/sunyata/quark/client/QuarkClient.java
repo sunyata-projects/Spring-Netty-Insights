@@ -42,6 +42,10 @@ public interface QuarkClient {
 
     void createAsync(String serialNo, String businName, String parameterString, boolean autoRun);
 
+    void createAsync(String serialNo, String businName, String sponsor, String relationId, String parameterString,
+                     boolean autoRun);
+
+
     JsonResponseResult create(String serialNo, String businName, HashMap<String, Object> parameters, boolean autoRun)
             throws Exception;
 

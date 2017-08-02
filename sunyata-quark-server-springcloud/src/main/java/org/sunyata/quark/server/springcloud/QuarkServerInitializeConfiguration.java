@@ -24,15 +24,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.sunyata.quark.BusinessManager;
+import org.sunyata.quark.MessageDispatchService;
+import org.sunyata.quark.MessageQueueService;
+import org.sunyata.quark.QuarkExecutor;
 
+import javax.annotation.PostConstruct;
 import java.util.Date;
 
 
@@ -46,26 +48,27 @@ public class QuarkServerInitializeConfiguration implements ApplicationContextAwa
     @Autowired
     QuarkServerProperties quarkServerProperties;
 
-//    @PostConstruct
-//    public void init() throws Exception {
-////        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(BusinessComponent.class);
-////        syncBusinessManager.initialize(beansWithAnnotation.values());
-////        aBusinessManager.initialize(beansWithAnnotation.values());
-//
-//    }
+    @PostConstruct
+    public void init() throws Exception {
+        messageDispatchService.doDispatch();
+
+    }
 
     @Autowired
-    BusinessManager syncBusinessManager;
+    QuarkExecutor quarkExecutor;
 
-    @Autowired()
-    @Qualifier("asyncBusinessManager")
-    BusinessManager aBusinessManager;
+    @Autowired
+    MessageQueueService messageQueueService;
+
+    @Autowired
+    MessageDispatchService messageDispatchService;
+
 
 
     @Scheduled(initialDelayString = "${quark.initialDelay:5000}", fixedDelayString = "${quark.fixedDelay:300000}")
     public void retryBusiness() throws Exception {
         if (quarkServerProperties.getRetryEnable()) {
-            aBusinessManager.retry();
+            quarkExecutor.retry();
         }
         logger.info("The time is now {}", new Date());
     }
@@ -73,7 +76,7 @@ public class QuarkServerInitializeConfiguration implements ApplicationContextAwa
     @Scheduled(initialDelayString = "${quark.initialDelay:10000}", fixedDelayString = "${quark.fixedDelay:300000}")
     public void reBeginBusiness() throws Exception {
         if (quarkServerProperties.getRetryEnable()) {
-            aBusinessManager.reBegin();
+            quarkExecutor.reBegin();
         }
         logger.info("The time is now {}", new Date());
     }

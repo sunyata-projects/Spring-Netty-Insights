@@ -31,7 +31,7 @@ import org.sunyata.quark.publish.EventPublisher;
 public class SimpleEventEventPublisher implements EventPublisher {
     Logger logger = LoggerFactory.getLogger(SimpleEventEventPublisher.class);
     @Override
-    public void publish(String serialNo) throws Exception {
+    public void publish(String no, String serialNo) throws Exception {
 //        SpringContextUtil.getApplicationContext().publishEvent(new BusinessComponentEvent(serialNo).setSerialNo
 //                (serialNo));
         logger.info("SimpleEventEventPublisher current Thread:{}",Thread.currentThread().getName());

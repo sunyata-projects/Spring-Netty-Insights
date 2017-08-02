@@ -24,10 +24,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
-import org.sunyata.quark.BusinessManager;
+import org.sunyata.quark.MessageQueueService;
 
 /**
  * Created by leo on 17/3/16.
@@ -38,16 +37,20 @@ public class BusinessComponentListener implements ApplicationListener<BusinessCo
 //    @Autowired
 //    AbstractBusinessManager businessManager;
 
+//    @Autowired
+//    @Qualifier("asyncBusinessManager")
+//    BusinessManager businessManager;
+
     @Autowired
-    @Qualifier("asyncBusinessManager")
-    BusinessManager businessManager;
+    MessageQueueService messageQueueService;
 
     @Override
     public void onApplicationEvent(BusinessComponentEvent event) {
         try {
             logger.info("BusinessComponentListener current Thread:{},流水号:{}", Thread.currentThread().getName(), event
                     .getSerialNo());
-            businessManager.run(event.getSerialNo());
+            //businessManager.run(event.getSerialNo());
+            messageQueueService.enQueue(event.getBusinName(), event.getBusinName(), 0, event.getSerialNo(), true);
         } catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
         }

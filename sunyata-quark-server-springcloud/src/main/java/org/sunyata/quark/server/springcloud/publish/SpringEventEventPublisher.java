@@ -28,8 +28,8 @@ import org.sunyata.quark.publish.EventPublisher;
  */
 public class SpringEventEventPublisher implements EventPublisher {
     @Override
-    public void publish(String serialNo) {
+    public void publish(String businessName, String serialNo) {
         SpringContextUtilForServer.getApplicationContext().publishEvent(new BusinessComponentEvent(serialNo).setSerialNo
-                (serialNo));
+                (serialNo).setBusinName(businessName));
     }
 }

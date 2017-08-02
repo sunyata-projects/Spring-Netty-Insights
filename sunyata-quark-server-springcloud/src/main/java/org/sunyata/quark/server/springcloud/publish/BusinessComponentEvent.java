@@ -26,6 +26,8 @@ import org.springframework.context.ApplicationEvent;
  * Created by leo on 17/3/16.
  */
 public class BusinessComponentEvent extends ApplicationEvent {
+    private String businName;
+
     /**
      * Create a new ApplicationEvent.
      *
@@ -45,4 +47,13 @@ public class BusinessComponentEvent extends ApplicationEvent {
     }
 
     private String serialNo;
+
+    public BusinessComponentEvent setBusinName(String businName) {
+        this.businName = businName;
+        return this;
+    }
+
+    public String getBusinName() {
+        return businName;
+    }
 }

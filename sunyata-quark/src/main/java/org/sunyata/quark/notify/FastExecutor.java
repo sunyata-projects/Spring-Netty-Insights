@@ -15,7 +15,7 @@ public class FastExecutor extends DefaultExecutor {
     Logger logger = LoggerFactory.getLogger(FastExecutor.class);
 
     @Override
-    protected void writeLog(BusinessContext businessContext, ProcessResult result) throws InstantiationException, IllegalAccessException, IOException {
+    protected void syncBusinessStatus(BusinessContext businessContext, ProcessResult result) throws InstantiationException, IllegalAccessException, IOException {
 
     }
 }

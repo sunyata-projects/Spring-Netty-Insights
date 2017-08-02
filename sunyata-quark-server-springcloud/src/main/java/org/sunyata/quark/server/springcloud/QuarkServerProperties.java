@@ -35,37 +35,62 @@ public class QuarkServerProperties {
 
     public static final String PREFIX = "quark";
 
-    public int getMaxRunTaskExecutor() {
-        return maxRunTaskExecutor;
-    }
+    @Value("${quark.redis.url}")
+    private String redisUrl;
 
-    public int getMaximumPoolSize() {
-        return maximumPoolSize;
-    }
+    @Value("${quark.redis.password}")
+    private String redisPassword;
+
+    @Value("${quark.zookeeper.connectionString}")
+    private String zookeeperConnectionString;
 
 
     @Value("${quark.maxRunTaskExecutor:16}")
     private int maxRunTaskExecutor;
 
-    @Value("${quark.maximumPoolSize:16}")
-    private int maximumPoolSize;
-
-    public boolean isLogEnable() {
-        return logEnable;
-    }
 
     @Value("${quark.log.enable:true}")
     private boolean logEnable;
 
-
-//    @Value("${quark.scanPackages}")
-//    private String scanPackages;
-
     @Value("${quark.retry.enable:true}")
     private boolean retryEnable;
 
-    @Value("${quark.zookeeper.connectionString}")
-    private String zookeeperConnectionString;
+
+    @Value("${quark.hystrix.command.threadpool.coresize:100}")
+    private int hystrixCommandThreadPoolCoreSize;
+
+    @Value("${quark.hystrix.command.execution.timeout.enable:true}")
+    private boolean hystrixCommandExecutionTimeoutEnable;
+
+    @Value("${quark.hystrix.command.execution.timeout.milliseconds:500000}")
+    private int hystrixCommandExecutionTimeoutInMilliseconds;
+
+
+    @Value("${quark.hystrix.command.circuit.breaker.enable:true}")
+    private boolean hystrixCommandCircuitBreakerEnable;
+
+    @Value("${quark.hystrix.command.circuit.breaker.volumethreshold:200}")
+    private int hystrixCommandCircuitBreakerRequestVolumeThreshold;
+
+    public int getHystrixCommandThreadPoolCoreSize() {
+        return hystrixCommandThreadPoolCoreSize;
+    }
+
+    public boolean isHystrixCommandExecutionTimeoutEnable() {
+        return hystrixCommandExecutionTimeoutEnable;
+    }
+
+    public int getHystrixCommandExecutionTimeoutInMilliseconds() {
+        return hystrixCommandExecutionTimeoutInMilliseconds;
+    }
+
+    public boolean isHystrixCommandCircuitBreakerEnable() {
+        return hystrixCommandCircuitBreakerEnable;
+    }
+
+    public int getHystrixCommandCircuitBreakerRequestVolumeThreshold() {
+        return hystrixCommandCircuitBreakerRequestVolumeThreshold;
+    }
 
     public String getZookeeperConnectionString() {
         return zookeeperConnectionString;
@@ -76,6 +101,9 @@ public class QuarkServerProperties {
         return this;
     }
 
+    public int getMaxRunTaskExecutor() {
+        return maxRunTaskExecutor;
+    }
 
     public boolean getRetryEnable() {
         return retryEnable;
@@ -87,5 +115,17 @@ public class QuarkServerProperties {
 
     public void setRetryEnable(boolean retryEnable) {
         this.retryEnable = retryEnable;
+    }
+
+    public String getRedisUrl() {
+        return redisUrl;
+    }
+
+    public String getRedisPassword() {
+        return redisPassword;
+    }
+
+    public boolean isLogEnable() {
+        return logEnable;
     }
 }

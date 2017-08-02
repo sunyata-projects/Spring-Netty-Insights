@@ -90,6 +90,24 @@ public class QuarkClientImpl implements QuarkClient {
     }
 
     @Override
+    public void createAsync(String serialNo, String businName, String sponsor, String relationId, String
+            parameterString, boolean autoRun) {
+        ComplexMessageInfo messageInfo = new ComplexMessageInfo();
+        messageInfo.setJobInfoType(MessageInfoType.CreateBusinessComponent);
+        messageInfo.setBodyJsonString(Json.encode(new CreateBusinessComponentMessageInfo().setAutoRun(autoRun)
+                .setBusinName(businName).setSerialNo(serialNo).setParameterString(parameterString).setSponsor
+                        (sponsor).setRelationId(relationId)));
+        String messageInfoString = Json.encode(messageInfo);
+        try {
+            rabbitTemplate.convertAndSend(rabbitExchange, rabbitQueue, messageInfoString);
+        } catch (AmqpException aex) {
+            logger.info(String.format("[job发送异常][%s]_%s_%s", MessageInfoType.CreateBusinessComponent.getValue(),
+                    MessageInfoType.CreateBusinessComponent, messageInfoString));
+            throw aex;
+        }
+    }
+
+    @Override
     public JsonResponseResult create(String serialNo, String businName, HashMap<String, Object> parameters, boolean
             autoRun) throws Exception {
         String encode = Json.encode(parameters);

@@ -20,8 +20,11 @@
 
 package org.sunyata.quark.server.springcloud;
 
+import com.netflix.hystrix.*;
 import feign.*;
 import feign.codec.ErrorDecoder;
+import feign.hystrix.HystrixFeign;
+import feign.hystrix.SetterFactory;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -36,10 +39,10 @@ import org.sunyata.quark.basic.AbstractQuarkComponent;
 import org.sunyata.quark.basic.BusinessContext;
 import org.sunyata.quark.basic.ProcessResult;
 import org.sunyata.quark.basic.QuarkComponentOptions;
-import org.sunyata.quark.exception.RemoteExecuteException;
 import org.sunyata.quark.server.springcloud.feign.QuarkRemoteClient;
 import org.sunyata.quark.stereotype.QuarkComponent;
 
+import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -122,7 +125,8 @@ public class RemoteQuarkComponent extends AbstractQuarkComponent<RemoteQuarkPara
             }
 
             logger.debug("获取FeignBuilder实例,服务名称:{}......", name);
-            Feign.Builder builder = feign(context, name);
+            //Feign.Builder builder = feign(context, name);
+            Feign.Builder builder = getBuilder(quarkName);
             logger.debug("获取FeignBuilder实例,服务名称:{}完成", name);
             if (!StringUtils.hasText(url)) {
                 if (!name.startsWith("http")) {
@@ -133,6 +137,9 @@ public class RemoteQuarkComponent extends AbstractQuarkComponent<RemoteQuarkPara
                 url += cleanPath(path);
                 logger.debug("quarkProvider Url:{}", url);
                 logger.debug("生成QuarkRemoteClient......");
+                Client client = getOptional(context, name, Client.class);
+                //QuarkRemoteClient quarkRemoteClient = HystrixFeign.builder().client(client).target(QuarkRemoteClient
+                        //.class, url);
                 QuarkRemoteClient quarkRemoteClient = loadBalance(builder, name, context, url);
                 logger.debug("生成QuarkRemoteClient完成,{}", quarkRemoteClient.getClass().getName());
                 logger.debug("调用远远程服务......");
@@ -156,6 +163,8 @@ public class RemoteQuarkComponent extends AbstractQuarkComponent<RemoteQuarkPara
                 builder.client(client);
             }
 
+            //HystrixFeign.builder().client(new RibbonClient()
+
             QuarkRemoteClient quarkRemoteClient = builder.target(QuarkRemoteClient.class, url);
             ProcessResult result = quarkRemoteClient.execute(parameterInfo.getBusinessContext()
                     .generateSerializableContext());
@@ -166,9 +175,36 @@ public class RemoteQuarkComponent extends AbstractQuarkComponent<RemoteQuarkPara
                     name + ",目标quark名称:" + quarkName;
             stackTrace = msg + "-----" + stackTrace;
             logger.error(stackTrace);
-            throw new RemoteExecuteException(stackTrace);
+            //throw new RemoteExecuteException(stackTrace);
+            throw ex;
         } finally {
         }
+    }
+
+    Feign.Builder getBuilder(String quarkName) {
+        HystrixFeign.Builder builder = HystrixFeign.builder().setterFactory(new SetterFactory() {
+            @Override
+            public HystrixCommand.Setter create(Target<?> target, Method method) {
+                return HystrixCommand.Setter
+                        .withGroupKey(HystrixCommandGroupKey.Factory.asKey(quarkName + "G"))
+                        .andCommandKey(HystrixCommandKey.Factory.asKey(quarkName))
+                        .andThreadPoolKey(HystrixThreadPoolKey.Factory.asKey(quarkName + "P"))
+                        .andCommandPropertiesDefaults(HystrixCommandProperties.Setter()
+                                .withExecutionIsolationStrategy(
+                                        HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
+                                .withCircuitBreakerEnabled(true)
+                                .withCircuitBreakerRequestVolumeThreshold(200)
+                                .withExecutionTimeoutEnabled(true)
+                                .withExecutionTimeoutInMilliseconds(100000)
+                                .withFallbackEnabled(true)
+                        )
+                        .andThreadPoolPropertiesDefaults(HystrixThreadPoolProperties.defaultSetter()
+                                .withCoreSize(100).withMaxQueueSize(10000).withQueueSizeRejectionThreshold(10000));
+            }
+        });
+        builder.encoder(new JacksonEncoder())
+                .decoder(new JacksonDecoder());
+        return builder;
     }
 
     protected <T> QuarkRemoteClient loadBalance(Feign.Builder builder, String name, FeignContext context, String url) {

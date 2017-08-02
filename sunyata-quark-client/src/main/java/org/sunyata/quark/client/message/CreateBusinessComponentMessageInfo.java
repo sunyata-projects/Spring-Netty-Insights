@@ -42,6 +42,27 @@ public class CreateBusinessComponentMessageInfo implements Serializable {
     private String parameterString;
     private boolean autoRun;
 
+    String sponsor;
+    String relationId;
+
+    public String getSponsor() {
+        return sponsor;
+    }
+
+    public CreateBusinessComponentMessageInfo setSponsor(String sponsor) {
+        this.sponsor = sponsor;
+        return this;
+    }
+
+    public String getRelationId() {
+        return relationId;
+    }
+
+    public CreateBusinessComponentMessageInfo setRelationId(String relationId) {
+        this.relationId = relationId;
+        return this;
+    }
+
     public CreateBusinessComponentMessageInfo setAutoRun(boolean autoRun) {
         this.autoRun = autoRun;
         return this;

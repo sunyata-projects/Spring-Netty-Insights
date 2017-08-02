@@ -1,32 +1,21 @@
 package org.sunyata.quark;
 
-import com.netflix.hystrix.HystrixCommand;
-import com.netflix.hystrix.HystrixCommandGroupKey;
 import org.slf4j.LoggerFactory;
 import org.sunyata.quark.basic.ProcessResult;
 
 /**
  * Created by leo on 17/7/27.
  */
-public class NotifyRunCommand extends HystrixCommand {
+public class NotifyRunCommand extends QuarkCommand {
     private org.slf4j.Logger logger = LoggerFactory.getLogger(NotifyRunCommand.class);
-    private BusinessManager businessManager;
-    private String serialNo;
-    private final Integer quarkIndex;
-    private final ProcessResult result;
+    private Integer quarkIndex;
+    private ProcessResult result;
 
-//    public NotifyRunCommand(BusinessManager businessManager, String serialNo) {
-//        super(HystrixCommandGroupKey.Factory.asKey("ExampleGroup"));
-//        this.businessManager = businessManager;
-//        this.serialNo = serialNo;
-//    }
-
-    public NotifyRunCommand(BusinessManager syncBusinessManager, String serialNo, Integer quarkIndex, ProcessResult
-            result) {
-        super(HystrixCommandGroupKey.Factory.asKey("ExampleGroup"),100000);
-        businessManager = syncBusinessManager;
-        this.serialNo = serialNo;
+    public NotifyRunCommand(String businName, String quarkName, String serialNo, Integer quarkIndex, ProcessResult
+            result,QuarkCommandConfig config) {
+        super(businName,quarkName,serialNo,config);
         this.quarkIndex = quarkIndex;
+
         this.result = result;
     }
 
@@ -37,8 +26,8 @@ public class NotifyRunCommand extends HystrixCommand {
      * @throws Exception
      */
     @Override
-    protected Object  run() throws Exception {
-       businessManager.quarkNotify(this.serialNo,quarkIndex,result);
+    protected Object run() throws Exception {
+        businessManager.quarkNotify(this.serialNo, quarkIndex, result);
         return null;
     }
 
@@ -47,9 +36,21 @@ public class NotifyRunCommand extends HystrixCommand {
      *
      * @return
      */
-    @Override
-    protected ProcessResult getFallback() {
-        return ProcessResult.r();
-    }
+//    @Override
+//    protected ProcessResult getFallback() {
+//        logger.error("Notify FallBack:{}", serialNo);
+//        Throwable executionException = getExecutionException();
+//        if (executionException instanceof RejectedExecutionException) {
+//            messageQueueService.enQueue(this.businName, 30000, serialNo, quarkIndex, result);//延时30秒钟最低
+//        } else if (executionException instanceof RuntimeException) {// short-circuited
+//            //messageQueueService.enQueue(30000, serialNo,quarkIndex,result);//延时30秒钟最低
+//        } else if (executionException instanceof HystrixTimeoutException) {
+//            messageQueueService.enQueue(this.businName, 30000, serialNo, quarkIndex, result);//延时30秒钟最低
+//        } else {
+//            logger.error("Retry 发生异常,未做处理:{}", serialNo);
+//        }
+//        logger.error("Notify FallBack Exceptions:{}", ExceptionUtils.getStackTrace(getExecutionException()));
+//        return ProcessResult.r();
+//    }
 
 }

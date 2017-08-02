@@ -42,7 +42,7 @@ public class DefaultEventPublisherFactory implements EventPublisherFactory {
     class DefaultEventEventPublisher implements EventPublisher {
 
         @Override
-        public void publish(String serialNo) {
+        public void publish(String no, String serialNo) {
             System.out.println("DefaultEventEventPublisher:" + serialNo);
         }
     }

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyata.quark.basic.BusinessContext;
 import org.sunyata.quark.basic.ProcessResult;
+import org.sunyata.quark.basic.ProcessResultTypeEnum;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
 import org.sunyata.quark.executor.AbstractExecutor;
 import org.sunyata.quark.json.Json;
@@ -49,33 +50,29 @@ public class NotifyExecutor extends AbstractExecutor {
             if (quarkComponentInstance == null) {
                 throw new Exception("通知时失败,从实例中获取Quark实例为空,通知内容:" + Json.encode(result));
             }
-
+            //上一步的状态不是I
+            QuarkComponentInstance previousQuarkComponentInstance = instance.getItems().stream().filter(p -> p
+                    .getOrderby()
+                    == businessContext.getManualComponentIndex() - 1)
+                    .findFirst().orElse(null);
+            if (previousQuarkComponentInstance != null && previousQuarkComponentInstance.getProcessResult() ==
+                    ProcessResultTypeEnum.I) {
+                throw new Exception("通知时失败,此业务还没有执行到此步骤,有可能是业务执行超时,业务状态没有落盘造成的,通知内容:" + Json.encode(result));
+            }
+            result = businessContext.getQuarkNotifyProcessResult();
             result.setQuarkComponentInstance(quarkComponentInstance);
             QuarkComponentDescriptor quarkComponentDescriptor = businessContext.getBusinessComponent().getFlow()
                     .getQuarkComponentDescriptor(quarkComponentInstance
                             .getQuarkName(), quarkComponentInstance.getOrderby(), quarkComponentInstance.getSubOrder());
             result.setQuarkComponentDescriptor(quarkComponentDescriptor);
-//            if (businessContext.getQuarkNotifyProcessResult().getProcessResultType() == ProcessResultTypeEnum.S) {
-//
-//
-//            } else if (businessContext.getQuarkNotifyProcessResult().getProcessResultType() == ProcessResultTypeEnum
-//                    .R) {
-//
-//            } else if (businessContext.getQuarkNotifyProcessResult().getProcessResultType() == ProcessResultTypeEnum
-//                    .E) {
-//
-//            }
-            // run
-            //result = businessContext.getBusinessComponent().run(businessContext);
         } catch (Exception ex) {
-//            result.setMessage(ExceptionUtils.getStackTrace(ex));
             logger.error(ExceptionUtils.getStackTrace(ex));
         } finally {
             try {
                 if (result.getQuarkComponentInstance() != null) {
                     logger.info("Quark通知更新库内容,SerialNO:" + businessContext.getSerialNo());
                     businessContext.getBusinessComponent().stateSync(businessContext, result);
-                    writeLog(businessContext, result);
+                    syncBusinessStatus(businessContext, result);
                     logger.info("Quark通知更新库内容完毕");
                 } else {
                     logger.error("此业务不能继续");
@@ -84,10 +81,6 @@ public class NotifyExecutor extends AbstractExecutor {
                 //todo 写库失败后,要写入日志文件 lcl
                 throw ex;
             }
-            /*finally {
-                // unlock serialNo
-                lock.release();
-            }*/
         }
         return result;
     }

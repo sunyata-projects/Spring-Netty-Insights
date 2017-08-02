@@ -68,7 +68,7 @@ public class MatchDeductManageFeeForMatchQuarkComponent extends AbstractQuarkCom
     public ProcessResult execute(BarQuarkParameterInfo parameterInfo) throws InterruptedException {
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
-        return ProcessResult.s().setOutputParameter("money", 3000);
+        return ProcessResult.s().setOutputParameter("MatchDeductManageFeeForMatchQuarkComponent", 3000);
     }
 
     @Override

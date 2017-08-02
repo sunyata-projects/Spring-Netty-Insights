@@ -22,7 +22,6 @@ package org.sunyata.quark.server.springcloud;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -31,20 +30,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.sunyata.quark.BusinessManager;
-import org.sunyata.quark.DefaultBusinessManager;
-import org.sunyata.quark.MultipleThreadBusinessManager;
+import org.sunyata.quark.*;
 import org.sunyata.quark.server.springcloud.ioc.SpringServiceLocator;
 import org.sunyata.quark.server.springcloud.publish.SpringEventEventPublisher;
 import org.sunyata.quark.stereotype.BusinessComponent;
-import org.sunyata.quark.thread.ExtendableThreadPoolExecutor;
-import org.sunyata.quark.thread.QuarkThreadFactory;
-import org.sunyata.quark.thread.TaskQueue;
 
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 
 @Configuration
@@ -60,51 +51,103 @@ public class EnableQuarkServerConfiguration {
     @Autowired
     ApplicationContext applicationContext;
 
-    @Bean("quarkRunTaskExecutor")
-    ExecutorService quarkRunTaskExecutor() {
-        logger.info("quark.maxRunTaskExecutor = {}", quarkServerProperties.getMaxRunTaskExecutor());
-        //return Executors.newFixedThreadPool(quarkServerProperties.getMaxRunTaskExecutor());
-        ThreadFactory factory = new QuarkThreadFactory();
-        return  new ExtendableThreadPoolExecutor(0, quarkServerProperties.getMaxRunTaskExecutor(), 2, TimeUnit.MINUTES,
-                new TaskQueue(),
-                factory);
-    }
+//    @Bean("quarkRunTaskExecutor")
+//    ExecutorService quarkRunTaskExecutor() {
+//        logger.info("quark.maxRunTaskExecutor = {}", quarkServerProperties.getMaxRunTaskExecutor());
+//        //return Executors.newFixedThreadPool(quarkServerProperties.getMaxRunTaskExecutor());
+//        ThreadFactory factory = new QuarkThreadFactory();
+//        return new ExtendableThreadPoolExecutor(0, quarkServerProperties.getMaxRunTaskExecutor(), 2, TimeUnit.MINUTES,
+//                new TaskQueue(),
+//                factory);
+//    }
 
-    @Bean("quarkMultipleRunTaskExecutor")
-    ExecutorService quarkMultipleRunTaskExecutor() {
-        //return Executors.newFixedThreadPool(quarkServerProperties.getMaxRunTaskExecutor());
-        ThreadFactory factory = new QuarkThreadFactory();
-        return  new ExtendableThreadPoolExecutor(0, quarkServerProperties.getMaxRunTaskExecutor(), 2, TimeUnit.MINUTES,
-                new TaskQueue(),
-                factory);
-    }
+//    @Bean("quarkMultipleRunTaskExecutor")
+//    ExecutorService quarkMultipleRunTaskExecutor() {
+//        //return Executors.newFixedThreadPool(quarkServerProperties.getMaxRunTaskExecutor());
+//        ThreadFactory factory = new QuarkThreadFactory();
+//        return new ExtendableThreadPoolExecutor(0, quarkServerProperties.getMaxRunTaskExecutor(), 2, TimeUnit.MINUTES,
+//                new TaskQueue(),
+//                factory);
+//    }
 
-    @Bean()
-    BusinessManager asyncBusinessManager(@Qualifier("quarkMultipleRunTaskExecutor") ExecutorService
-                                                 quarkMultipleRunTaskExecutor) throws
-            Exception {
-        logger.info("创建asyncBusinessManager bean");
-        MultipleThreadBusinessManager c = new MultipleThreadBusinessManager();
-        c.initialize(quarkMultipleRunTaskExecutor);
-        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(BusinessComponent.class);
-        c.initialize(beansWithAnnotation.values());
-        c.setServiceLocator(SpringServiceLocator.class);
-        c.setEventPublisher(SpringEventEventPublisher.class);
-        return c;
-    }
+//    @Bean()
+//    BusinessManager asyncBusinessManager(@Qualifier("quarkMultipleRunTaskExecutor") ExecutorService
+//                                                 quarkMultipleRunTaskExecutor, MessageQueueService
+//            messageQueueService) throws
+//            Exception {
+//        logger.info("创建asyncBusinessManager bean");
+//        MultipleThreadBusinessManager c = new MultipleThreadBusinessManager();
+//        c.initialize(quarkMultipleRunTaskExecutor);
+//        c.initialize(messageQueueService);
+//        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(BusinessComponent.class);
+//        c.initialize(beansWithAnnotation.values());
+//        c.setServiceLocator(SpringServiceLocator.class);
+//        c.setEventPublisher(SpringEventEventPublisher.class);
+//
+//        return c;
+//    }
 
     @Bean("syncBusinessManager")
     @Primary
-    BusinessManager syncBusinessManager(@Qualifier("quarkRunTaskExecutor") ExecutorService quarkRunTaskExecutor) throws
+    BusinessManager syncBusinessManager(MessageQueueService messageQueueService) throws
             Exception {
         logger.info("创建 syncBusinessManager bean");
         BusinessManager c = new DefaultBusinessManager();
-        c.initialize(quarkRunTaskExecutor);
         c.setServiceLocator(SpringServiceLocator.class);
         c.setEventPublisher(SpringEventEventPublisher.class);
+        c.initialize(messageQueueService);
         Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(BusinessComponent.class);
         c.initialize(beansWithAnnotation.values());
         return c;
+    }
+
+//    @Bean
+//    public RedissonClient redissonClient() {
+//        Config config = new Config();
+//        String[] urls = quarkServerProperties.getRedisUrl().split(",");
+//        logger.info("redis密码为:{}", quarkServerProperties.getRedisPassword());
+//        if (urls.length == 1) {
+//            SingleServerConfig singleServerConfig = config.useSingleServer().setAddress(quarkServerProperties
+//                    .getRedisUrl());
+//            if (!StringUtils.isEmpty(quarkServerProperties.getRedisPassword())) {
+//                singleServerConfig.setPassword(quarkServerProperties.getRedisPassword());
+//            }
+//        } else {
+//            ClusterServersConfig clusterServersConfig = config.useClusterServers().addNodeAddress(urls[0], urls[1]);
+//            if (!StringUtils.isEmpty(quarkServerProperties.getRedisPassword())) {
+//                clusterServersConfig.setPassword(quarkServerProperties.getRedisPassword());
+//            }
+//
+//        }
+//        return Redisson.create(config);
+//    }
+
+    @Bean
+    MessageQueueService messageQueueService() {
+        MessageQueueService messageQueueService = new MessageQueueService();
+        return messageQueueService;
+    }
+
+    @Bean
+    QuarkExecutor quarkExecutor(){
+        return new DefaultQuarkExecutor();
+    }
+    @Bean
+    MessageDispatchService messageDispatchService(QuarkExecutor
+                                                          quarkExecutor, MessageQueueService
+                                                          messageQueueService, QuarkServerProperties
+                                                          quarkServerProperties) {
+        QuarkCommandConfig config = new QuarkCommandConfig();
+        config.setHystrixCommandCircuitBreakerEnable(quarkServerProperties.isHystrixCommandCircuitBreakerEnable())
+                .setHystrixCommandCircuitBreakerRequestVolumeThreshold(quarkServerProperties
+                        .getHystrixCommandCircuitBreakerRequestVolumeThreshold())
+                .setHystrixCommandExecutionTimeoutEnable(quarkServerProperties.isHystrixCommandExecutionTimeoutEnable())
+                .setHystrixCommandExecutionTimeoutInMilliseconds(quarkServerProperties
+                        .getHystrixCommandExecutionTimeoutInMilliseconds())
+                .setHystrixCommandThreadPoolCoreSize(quarkServerProperties.getHystrixCommandThreadPoolCoreSize());
+        MessageDispatchService dispatchService = new MessageDispatchService(quarkExecutor,
+                messageQueueService, config);
+        return dispatchService;
     }
 
     //    @Autowired
