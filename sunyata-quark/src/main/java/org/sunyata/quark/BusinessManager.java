@@ -33,28 +33,7 @@ import java.util.List;
  */
 public interface BusinessManager {
 
-    void initialize(MessageQueueService queueService) ;
-//    void initialize(ExecutorService executor) ;
-
     void initialize(Collection<Object> names) throws Exception;
-
-//    BusinessComponentInstance create(String serialNo, String businName, String sponsor, String relationId, String parameterString) throws
-//            Exception;
-//
-//    BusinessComponentInstance create(String serialNo, String businName, String sponsor, String relationId, String parameterString, boolean
-//            autoRun)
-//            throws
-//            Exception;
-//
-//    void run(String serialNo) throws Exception;
-//
-//    ProcessResult runByManual(String serialNo, int quarkIndex, String parameters) throws Exception;
-//
-//    void retry(String serialNo) throws Exception;
-//
-//    void reBegin() throws Exception;
-//
-//    void retry() throws Exception;
 
     <T extends AbstractBusinessComponent> void register(Class<T> businessComponent) throws
             Exception;
@@ -64,8 +43,6 @@ public interface BusinessManager {
     <T extends EventPublisher> void setEventPublisher(Class<T> eventPublisherClass);
 
     List<BusinessComponentDescriptor> getComponents() throws Exception;
-
-    //void quarkNotify(String serialNo, Integer quarkIndex, ProcessResult result) throws Exception;
 
     AbstractBusinessComponent getBusinessComponent(String businName) throws IllegalAccessException,
             InstantiationException;

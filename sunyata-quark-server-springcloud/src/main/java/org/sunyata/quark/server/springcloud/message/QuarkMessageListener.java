@@ -24,13 +24,13 @@ public class QuarkMessageListener implements ChannelAwareMessageListener {
     @Override
     public void onMessage(Message message, Channel channel) throws Exception {
         String msg = new String(message.getBody());
-        logger.info("消息来啦:" + msg);
+        logger.info("receive a new message:" + msg);
         ComplexMessageInfo jobInfo = null;
         try {
             jobInfo = Json.decodeValue(msg, ComplexMessageInfo.class);
-            logger.info("job任务序列化成功:" + msg);
+            logger.info("message has been successfully serialization:" + msg);
         } catch (Exception e) {//序列化失败,任务被抛弃
-            logger.error("消息序列化失败:{}", ExceptionUtils.getStackTrace(e));
+            logger.error("message serialization failure:{}", ExceptionUtils.getStackTrace(e));
             //channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             //channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, true);
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), false);
@@ -39,10 +39,11 @@ public class QuarkMessageListener implements ChannelAwareMessageListener {
             processService.process(jobInfo);
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (BusinessComponentConstraintViolationException ex) {
-            logger.error("业务流水号冲突" + ExceptionUtils.getFullStackTrace(ex));
+            logger.error("business instance serial number conflict:" + ExceptionUtils.getFullStackTrace(ex));
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         } catch (Exception ex) {
-            logger.error("处理新消息时发生错误:" + ExceptionUtils.getFullStackTrace(ex));
+            logger.error("An error occurred while trying to process the message:" + ExceptionUtils.getFullStackTrace
+                    (ex));
             channel.basicReject(message.getMessageProperties().getDeliveryTag(), true);
         }
     }

@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,7 +41,6 @@ import rx.schedulers.Schedulers;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 
 /**
  * Created by leo on 17/3/30.
@@ -55,16 +53,6 @@ public class QuarkController {
     @Autowired
     RetryCallBackService retryCallBackService;
 
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("GithubLookup-");
-        executor.initialize();
-        return executor;
-    }
-
     @RequestMapping(value = "/run", method = RequestMethod.POST)
     public ProcessResult run(@RequestBody BusinessContext businessContext) throws Exception {
         String quarkName = null;
@@ -72,7 +60,8 @@ public class QuarkController {
             quarkName = (String) businessContext.getCurrentQuarkDescriptor().getOptions().getValue
                     ("quark-name", null);
             if (quarkName == null) {
-                String format = String.format("quark名称不能为空,流水号:%s", businessContext.getCurrentQuarkSerialNo());
+                String format = String.format("the parameter 'quark-name' can not be empty,business serial number:%s",
+                        businessContext.getCurrentQuarkSerialNo());
                 logger.error(format);
                 return ProcessResult.e().setMessage(format);
             }
@@ -80,60 +69,29 @@ public class QuarkController {
                     AbstractQuarkComponent.class);
             ProcessResult run = ProcessResult.r();
             boolean async = businessContext.getCurrentQuarkDescriptor().isAsync();
-//            ExecutorService executorService = Executors.newFixedThreadPool(10);
-//            executorService.submit(new Runnable() {
-//                @Override
-//                public void run() {
-//
-//                }
-//            },new Object()).
-
+            long begin = System.currentTimeMillis();
             if (async) {
-//                getAsyncExecutor().execute(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        ProcessResult run = null;
-////                        try {
-//                        try {
-//                            run = bean.run(businessContext);
-//                            retryCallBackService.callBack(businessContext.getQuarkServiceName(), businessContext
-//                                    .getSerialNo(), businessContext.getCurrentQuarkDescriptor().getOrder(), run);
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//
-////                        } catch (Exception e) {
-////                            logger.error(ExceptionUtils.getStackTrace(e));
-////                        }
-//                    }
-//                });
-                Observable.fromCallable(new Callable<ProcessResult>() {
-                    @Override
-                    public ProcessResult call() throws Exception {
-                        return bean.run(businessContext);
-                    }
-                }).observeOn(Schedulers.newThread())
+                Observable.fromCallable(() -> bean.run(businessContext)).observeOn(Schedulers.newThread())
                         .subscribeOn(Schedulers.newThread())
-                        .subscribe(new Action1<ProcessResult>() {
-                            @Override
-                            public void call(ProcessResult result) {
-                                try {
-                                    retryCallBackService.callBack(businessContext.getQuarkServiceName(), businessContext
-                                            .getSerialNo(), businessContext.getCurrentQuarkDescriptor().getOrder(), result);
-                                } catch (Exception e) {
-                                    logger.error(ExceptionUtils.getStackTrace(e));
-                                }
+                        .subscribe(result -> {
+                            try {
+                                result.setBeginMillis(begin);
+                                result.setTotalMillis(System.currentTimeMillis() - begin);
+                                retryCallBackService.callBack(businessContext.getQuarkServiceName(), businessContext
+                                                .getSerialNo(), businessContext.getCurrentQuarkDescriptor().getOrder(),
+                                        result);
+                            } catch (Exception e) {
+                                logger.error(ExceptionUtils.getStackTrace(e));
                             }
                         });
                 return run;
             }
 
             run = bean.run(businessContext);
-            logger.info(String.format("业务执行完毕,流水号为:%s", businessContext.getCurrentQuarkSerialNo()));
             return run;
 
         } catch (BeansException beanException) {
-            String logString = String.format("没有找到名称为%s的quark", quarkName);
+            String logString = String.format("failed to find %s quark", quarkName);
             logger.error(logString);
             return ProcessResult.r().setMessage(logString);
         } catch (Exception ex) {

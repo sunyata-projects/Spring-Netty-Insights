@@ -45,57 +45,16 @@ import java.util.Map;
 @EnableConfigurationProperties({QuarkServerProperties.class})
 public class EnableQuarkServerConfiguration {
     private org.slf4j.Logger logger = LoggerFactory.getLogger(EnableQuarkServerConfiguration.class);
-    @Autowired
-    private QuarkServerProperties quarkServerProperties;
 
     @Autowired
     ApplicationContext applicationContext;
 
-//    @Bean("quarkRunTaskExecutor")
-//    ExecutorService quarkRunTaskExecutor() {
-//        logger.info("quark.maxRunTaskExecutor = {}", quarkServerProperties.getMaxRunTaskExecutor());
-//        //return Executors.newFixedThreadPool(quarkServerProperties.getMaxRunTaskExecutor());
-//        ThreadFactory factory = new QuarkThreadFactory();
-//        return new ExtendableThreadPoolExecutor(0, quarkServerProperties.getMaxRunTaskExecutor(), 2, TimeUnit.MINUTES,
-//                new TaskQueue(),
-//                factory);
-//    }
-
-//    @Bean("quarkMultipleRunTaskExecutor")
-//    ExecutorService quarkMultipleRunTaskExecutor() {
-//        //return Executors.newFixedThreadPool(quarkServerProperties.getMaxRunTaskExecutor());
-//        ThreadFactory factory = new QuarkThreadFactory();
-//        return new ExtendableThreadPoolExecutor(0, quarkServerProperties.getMaxRunTaskExecutor(), 2, TimeUnit.MINUTES,
-//                new TaskQueue(),
-//                factory);
-//    }
-
-//    @Bean()
-//    BusinessManager asyncBusinessManager(@Qualifier("quarkMultipleRunTaskExecutor") ExecutorService
-//                                                 quarkMultipleRunTaskExecutor, MessageQueueService
-//            messageQueueService) throws
-//            Exception {
-//        logger.info("创建asyncBusinessManager bean");
-//        MultipleThreadBusinessManager c = new MultipleThreadBusinessManager();
-//        c.initialize(quarkMultipleRunTaskExecutor);
-//        c.initialize(messageQueueService);
-//        Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(BusinessComponent.class);
-//        c.initialize(beansWithAnnotation.values());
-//        c.setServiceLocator(SpringServiceLocator.class);
-//        c.setEventPublisher(SpringEventEventPublisher.class);
-//
-//        return c;
-//    }
-
     @Bean("syncBusinessManager")
     @Primary
-    BusinessManager syncBusinessManager(MessageQueueService messageQueueService) throws
-            Exception {
-        logger.info("创建 syncBusinessManager bean");
+    BusinessManager syncBusinessManager() throws Exception {
         BusinessManager c = new DefaultBusinessManager();
         c.setServiceLocator(SpringServiceLocator.class);
         c.setEventPublisher(SpringEventEventPublisher.class);
-        c.initialize(messageQueueService);
         Map<String, Object> beansWithAnnotation = applicationContext.getBeansWithAnnotation(BusinessComponent.class);
         c.initialize(beansWithAnnotation.values());
         return c;
@@ -124,8 +83,7 @@ public class EnableQuarkServerConfiguration {
 
     @Bean
     MessageQueueService messageQueueService() {
-        MessageQueueService messageQueueService = new MessageQueueService();
-        return messageQueueService;
+        return new MessageQueueService();
     }
 
     @Bean
@@ -145,21 +103,6 @@ public class EnableQuarkServerConfiguration {
                 .setHystrixCommandExecutionTimeoutInMilliseconds(quarkServerProperties
                         .getHystrixCommandExecutionTimeoutInMilliseconds())
                 .setHystrixCommandThreadPoolCoreSize(quarkServerProperties.getHystrixCommandThreadPoolCoreSize());
-        MessageDispatchService dispatchService = new MessageDispatchService(quarkExecutor,
-                messageQueueService, config);
-        return dispatchService;
+        return new MessageDispatchService(quarkExecutor,messageQueueService, config);
     }
-
-    //    @Autowired
-//    @Qualifier("syncBusinessManager")
-//    BusinessManager syncBusinessManager;
-//
-//    @Autowired
-//    @Qualifier("syncBusinessManager")
-//    BusinessManager syncBusinessManager;
-
-//    @Override
-//    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-//        this.applicationContext = applicationContext;
-//    }
 }

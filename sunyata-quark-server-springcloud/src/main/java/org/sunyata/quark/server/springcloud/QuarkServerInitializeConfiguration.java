@@ -31,11 +31,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.sunyata.quark.MessageDispatchService;
-import org.sunyata.quark.MessageQueueService;
 import org.sunyata.quark.QuarkExecutor;
 
 import javax.annotation.PostConstruct;
-import java.util.Date;
 
 
 @Configuration
@@ -58,9 +56,6 @@ public class QuarkServerInitializeConfiguration implements ApplicationContextAwa
     QuarkExecutor quarkExecutor;
 
     @Autowired
-    MessageQueueService messageQueueService;
-
-    @Autowired
     MessageDispatchService messageDispatchService;
 
 
@@ -70,7 +65,6 @@ public class QuarkServerInitializeConfiguration implements ApplicationContextAwa
         if (quarkServerProperties.getRetryEnable()) {
             quarkExecutor.retry();
         }
-        logger.info("The time is now {}", new Date());
     }
 
     @Scheduled(initialDelayString = "${quark.initialDelay:10000}", fixedDelayString = "${quark.fixedDelay:300000}")
@@ -78,7 +72,6 @@ public class QuarkServerInitializeConfiguration implements ApplicationContextAwa
         if (quarkServerProperties.getRetryEnable()) {
             quarkExecutor.reBegin();
         }
-        logger.info("The time is now {}", new Date());
     }
 
     @Override

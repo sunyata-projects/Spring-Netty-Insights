@@ -37,6 +37,7 @@ public class ProcessResult implements Serializable {
     private String message;//接口返回数据
     private Object body;//返回的消息体
     private long totalMillis;
+    private long beginMillis;
 
     public Object getBody() {
         return body;
@@ -130,5 +131,13 @@ public class ProcessResult implements Serializable {
 
     public long getTotalMillis() {
         return totalMillis;
+    }
+
+    public void setBeginMillis(long beginMillis) {
+        this.beginMillis = beginMillis;
+    }
+
+    public long getBeginMillis() {
+        return beginMillis;
     }
 }

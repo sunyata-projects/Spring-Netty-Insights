@@ -26,12 +26,13 @@ public class NotifyExecutor extends AbstractExecutor {
         //lock.acquire();
         //logger.info("获取锁成功,SerianNo:" + businessContext.getSerialNo());
         try {
-            logger.info("开始执行,SerianNo:" + businessContext.getSerialNo());
             result = execute(businessContext);
-            logger.info("执行完毕,SerianNo:" + businessContext.getSerialNo() + ",Result:" + Json.encode(result));
             return result;
         } catch (Throwable ex) {
-            logger.error("出错,SerialNo:" + businessContext.getSerialNo() + ",错误信息:" + ExceptionUtils.getStackTrace(ex));
+            logger.error("an error occurred while executing business component,SerialNo:" + businessContext.getSerialNo
+                    () + ",error message:" +
+                    ExceptionUtils.getStackTrace
+                    (ex));
             throw ex;
         } finally {
             //lock.release();
@@ -41,6 +42,7 @@ public class NotifyExecutor extends AbstractExecutor {
 
     protected ProcessResult execute(BusinessContext businessContext) throws Exception {
         ProcessResult result = ProcessResult.r();//未知
+        //boolean syncBusinessStatusFlag = true;
         try {
             BusinessComponentInstance instance = businessContext.getInstance();
             QuarkComponentInstance quarkComponentInstance = instance.getItems().stream().filter(p -> p.getOrderby()
@@ -49,6 +51,11 @@ public class NotifyExecutor extends AbstractExecutor {
             result = businessContext.getQuarkNotifyProcessResult();
             if (quarkComponentInstance == null) {
                 throw new Exception("通知时失败,从实例中获取Quark实例为空,通知内容:" + Json.encode(result));
+            }
+            if(quarkComponentInstance.getProcessResult()==ProcessResultTypeEnum.S){
+                //此业务步骤已经成功,则不应该进行任何处理
+                //syncBusinessStatusFlag = false;
+                return result;
             }
             //上一步的状态不是I
             QuarkComponentInstance previousQuarkComponentInstance = instance.getItems().stream().filter(p -> p
@@ -67,13 +74,12 @@ public class NotifyExecutor extends AbstractExecutor {
             result.setQuarkComponentDescriptor(quarkComponentDescriptor);
         } catch (Exception ex) {
             logger.error(ExceptionUtils.getStackTrace(ex));
+            throw ex;
         } finally {
             try {
                 if (result.getQuarkComponentInstance() != null) {
-                    logger.info("Quark通知更新库内容,SerialNO:" + businessContext.getSerialNo());
                     businessContext.getBusinessComponent().stateSync(businessContext, result);
                     syncBusinessStatus(businessContext, result);
-                    logger.info("Quark通知更新库内容完毕");
                 } else {
                     logger.error("此业务不能继续");
                 }

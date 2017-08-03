@@ -20,13 +20,12 @@
 
 package org.sunyata.quark.executor;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sunyata.quark.basic.BusinessContext;
 import org.sunyata.quark.basic.ProcessResult;
 import org.sunyata.quark.exception.CanNotExecuteException;
-import org.sunyata.quark.json.Json;
 
 /**
  * Created by leo on 16/12/14.
@@ -38,13 +37,14 @@ public class DefaultExecutor extends AbstractExecutor {
     public ProcessResult run(BusinessContext businessContext) throws Exception {
         ProcessResult result = ProcessResult.r();
         try {
-            logger.info("Exector开始执行,SerianNo:" + businessContext.getSerialNo());
+//            logger.info("Exector开始执行,SerianNo:" + businessContext.getSerialNo());
             result = execute(businessContext);
-            logger.info("Exector执行完毕,SerianNo:" + businessContext.getSerialNo() + ",Result:" + Json.encode(result));
+//            logger.info("Exector执行完毕,SerianNo:" + businessContext.getSerialNo() + ",Result:" + Json.encode(result));
         } catch (CanNotExecuteException canNotEx) {
             //logger.error(canNotEx.getMessage());
         } catch (Throwable ex) {
-            logger.error("出错,SerialNo:" + businessContext.getSerialNo() + ",错误信息:" + ExceptionUtils.getStackTrace(ex));
+            logger.error("An error occurred while executing business component,SerialNo:{},error message:{}",
+                    businessContext.getSerialNo(), ExceptionUtils.getStackTrace(ex));
             throw ex;
         } finally {
             //lock.release();

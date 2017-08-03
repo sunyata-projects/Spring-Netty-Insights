@@ -17,7 +17,7 @@ public class RetryCommand extends QuarkCommand {
     protected Object run() throws Exception {
         try {
             //long now = System.currentTimeMillis();
-            businessManager.retry(this.serialNo);
+            quarkExecutor.retry(this.serialNo);
             return null;
         } catch (Exception ex) {
             logger.error("ERROR:{}", ExceptionUtils.getStackTrace(ex));

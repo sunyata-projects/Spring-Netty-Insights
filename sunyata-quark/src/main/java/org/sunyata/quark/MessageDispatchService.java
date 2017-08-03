@@ -32,10 +32,7 @@ public class MessageDispatchService {
                 try {
                     element = queueService.take();
                     int i = atomicInteger.incrementAndGet();
-                    if (i == 1000) {
-                        logger.info("sldkfjalksdjflasjdflkajsdlfjalskdfjaksdflkjasdkjfkljasdjfdsf");
-                    }
-                    logger.info("当前出列:{},serialNO:{}", i, element.getSerialNo());
+                    logger.info("current dequeue:{},serialNO:{}", i, element.getSerialNo());
                     element.getCommand(businessManager, queueService, config).queue();
 //                    if (!element.isPrimary()) {
 //                        new RetryCommand(businessManager, element.getSerialNo()).queue();

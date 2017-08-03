@@ -31,8 +31,10 @@ import org.sunyata.quark.ioc.ServiceLocator;
 import org.sunyata.quark.store.BusinessInstanceStore;
 import org.sunyata.quark.store.QuarkComponentInstance;
 import org.sunyata.quark.store.QuarkComponentLog;
+import org.sunyata.quark.util.DateUtils;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
 
 /**
@@ -66,7 +68,7 @@ public abstract class AbstractExecutor implements Executor {
 
     protected void syncBusinessStatus(BusinessContext businessContext, ProcessResult result) throws
             InstantiationException,
-            IllegalAccessException, IOException {
+            IllegalAccessException, IOException, ParseException {
         BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore
                 .class);
         QuarkComponentInstance quarkComponentInstance = result.getQuarkComponentInstance();
@@ -82,7 +84,9 @@ public abstract class AbstractExecutor implements Executor {
                 quarkComponentInstance.getQuarkFriendlyName(),
                 result.getProcessResultType(),
                 Thread.currentThread().getName(),
-                result.getMessage(), String.valueOf(result.getTotalMillis()));
+                result.getMessage(),
+                DateUtils.longToString(result.getBeginMillis(),"yyyy-MM-dd HH:mm:ss"),
+                String.valueOf(result.getTotalMillis()));
 
         businessInstanceStore.syncBusinessStatus(businessContext.getInstance(), quarkComponentLog);
     }

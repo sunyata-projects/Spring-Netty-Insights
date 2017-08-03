@@ -68,10 +68,10 @@ public interface BusinessMapper {
     List<QuarkComponentInstance> findQuarkComponentInstances(@Param("serialNo") String serialNo);
 
     @Insert("INSERT INTO QuarkComponentLog(serialNo,businSerialNo,quarkName,quarkFriendlyName,version," +
-            "createDateTime,processResult,notes,processResultString,totalMilliseconds) " +
+            "createDateTime,processResult,notes,processResultString,totalMilliseconds,beginMilliseconds) " +
             "VALUES(#{serialNo}, #{businSerialNo},#{quarkName},#{quarkFriendlyName},#{version}," +
             "#{createDateTime}," +
-            "#{processResult},#{notes},#{processResultString},#{totalMilliseconds})")
+            "#{processResult},#{notes},#{processResultString},#{totalMilliseconds},#{beginMilliseconds})")
     void insertByComponentLog(QuarkComponentLog quarkComponentLog);
 
     @Select("SELECT * FROM BusinessComponent WHERE TIMEDIFF(now(),updateDateTime) >'00:02:00' and  " +
@@ -82,7 +82,6 @@ public interface BusinessMapper {
     @Select("select * from BusinessComponent where TIMEDIFF(now(),createDateTime) >'00:10:00' and businStatus " +
             "= 'Initialize' order by updateDateTime ;")
     List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness();
-
 
 
     @Select("SELECT * FROM QuarkParameter WHERE businessSerialNo = #{serialNo} and parameterType=#{parameterType}")

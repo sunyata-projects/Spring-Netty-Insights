@@ -1,7 +1,11 @@
 package org.sunyata.quark;
 
+import com.netflix.hystrix.exception.HystrixTimeoutException;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.LoggerFactory;
 import org.sunyata.quark.basic.ProcessResult;
+
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Created by leo on 17/7/27.
@@ -27,8 +31,27 @@ public class NotifyRunCommand extends QuarkCommand {
      */
     @Override
     protected Object run() throws Exception {
-        businessManager.quarkNotify(this.serialNo, quarkIndex, result);
+        quarkExecutor.quarkNotify(this.serialNo, quarkIndex, result);
         return null;
+    }
+
+
+    @Override
+    protected ProcessResult getFallback() {
+        logger.error("Notify FallBack:{}", serialNo);
+        Throwable executionException = getExecutionException();
+        if (executionException instanceof RejectedExecutionException) {
+            messageQueueService.enQueue(businName, quarkName, 30000, serialNo, true);//延时30秒钟最低
+        } else if (executionException instanceof RuntimeException) {// short-circuited
+            //messageQueueService.enQueue(3 * 60 * 1000, serialNo, true);//延时30秒钟最低
+        } else if (executionException instanceof HystrixTimeoutException) {
+            messageQueueService.enQueue(businName, quarkName, 30000, serialNo, true);//延时30秒钟最低
+        } else {
+            logger.error("发生异常,未做处理:{}", serialNo);
+        }
+        logger.error("Notify Exceptions:{}", ExceptionUtils.getStackTrace(getExecutionException()));
+        return ProcessResult.r();
+
     }
 
     /**

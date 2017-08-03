@@ -28,7 +28,7 @@ public class HystrixCommandWrapper extends HystrixCommand<ProcessResult> {
 
     public HystrixCommandWrapper(String quarkServiceName, ApplicationContext applicationContext,
                                  RemoteQuarkParameterInfo info) {
-        super(HystrixCommandGroupKey.Factory.asKey("ExampleGroup"),100000);
+        super(HystrixCommandGroupKey.Factory.asKey("ExampleGroup"), 100000);
         this.quarkServiceName = quarkServiceName;
         this.applicationContext = applicationContext;
         this.parameterInfo = info;
@@ -56,23 +56,24 @@ public class HystrixCommandWrapper extends HystrixCommand<ProcessResult> {
             url = (String) options.getValue("url", null);
         }
 
-        logger.info("quarkProvider name:{},path:{},url:{}", name, path, url);
-        logger.info("本地quarkServer服务名称:{},目标quarkProvider服务名称:{},目标quark名称:{}", quarkServiceName, name, quarkName);
+//        logger.info("quarkProvider name:{},path:{},url:{}", name, path, url);
+        logger.info("current service name:{},target quark provider service name :{},target quark name:{}",
+                quarkServiceName, name, quarkName);
         try {
-            logger.debug("获取FeignContext实例......");
+//            logger.debug("获取FeignContext实例......");
             FeignContext context = applicationContext.getBean(FeignContext.class);
-            logger.debug("获取FeignContext实例完成");
+//            logger.debug("获取FeignContext实例完成");
             parameterInfo.getBusinessContext().setQuarkServiceName(quarkServiceName);
 //            this.setName((String) options.getValue("name", null));
 //            this.setPath((String) options.getValue("path", null));
 //            this.setUrl((String) options.getValue("url", null));
             if (org.apache.commons.lang.StringUtils.isEmpty(name)) {
-                throw new IllegalArgumentException("服务名称不能为空");
+                throw new IllegalArgumentException("The service name cannot be empty");
             }
 
-            logger.debug("获取FeignBuilder实例,服务名称:{}......", name);
+//            logger.debug("获取FeignBuilder实例,服务名称:{}......", name);
             Feign.Builder builder = feign(context, name);
-            logger.debug("获取FeignBuilder实例,服务名称:{}完成", name);
+//            logger.debug("获取FeignBuilder实例,服务名称:{}完成", name);
             if (!StringUtils.hasText(url)) {
                 if (!name.startsWith("http")) {
                     url = "http://" + name;
@@ -80,14 +81,14 @@ public class HystrixCommandWrapper extends HystrixCommand<ProcessResult> {
                     url = name;
                 }
                 url += cleanPath(path);
-                logger.debug("quarkProvider Url:{}", url);
-                logger.debug("生成QuarkRemoteClient......");
+//                logger.debug("quarkProvider Url:{}", url);
+//                logger.debug("生成QuarkRemoteClient......");
                 QuarkRemoteClient quarkRemoteClient = loadBalance(builder, name, context, url);
-                logger.debug("生成QuarkRemoteClient完成,{}", quarkRemoteClient.getClass().getName());
-                logger.debug("调用远远程服务......");
+//                logger.debug("生成QuarkRemoteClient完成,{}", quarkRemoteClient.getClass().getName());
+//                logger.debug("调用远远程服务......");
                 ProcessResult result = quarkRemoteClient.execute(parameterInfo.getBusinessContext()
                         .generateSerializableContext());
-                logger.debug("调用远远程服务完成");
+//                logger.debug("调用远远程服务完成");
 //                logger.info("调用远程quarkProvider返回结果:{}", Json.encode(result));
                 return result;
             }
@@ -112,8 +113,9 @@ public class HystrixCommandWrapper extends HystrixCommand<ProcessResult> {
             return result;
         } catch (Exception ex) {
             String stackTrace = ExceptionUtils.getStackTrace(ex);
-            String msg = "调用远程quarkProvider时出错,本地quarkServer服务名称:" + quarkServiceName + ",目标quarkProvider服务名称:" +
-                    name + ",目标quark名称:" + quarkName;
+            String msg = "An error occurred while invoking remote provider,current service name:" +
+                    quarkServiceName + ",target quark service name" +
+                    name + ",target quark name:" + quarkName;
             stackTrace = msg + "-----" + stackTrace;
             logger.error(stackTrace);
             throw new RemoteExecuteException(stackTrace);

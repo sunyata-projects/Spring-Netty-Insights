@@ -35,6 +35,9 @@ import org.sunyata.quark.stereotype.BusinessComponent;
 import org.sunyata.quark.store.QuarkComponentInstance;
 import org.sunyata.quark.synchronization.StateSynchronization;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by leo on 16/12/15.
  */
@@ -106,6 +109,7 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
 
 
     public ProcessResult run(BusinessContext businessContext) throws Exception {
+        long begin = System.currentTimeMillis();
         QuarkComponentInstance quarkComponentInstance = null;
         ProcessResult result = ProcessResult.r();//未知
         Flow flow = getFlow();
@@ -114,7 +118,8 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
             quarkComponentInstance = flow.selectQuarkComponentInstance(businessContext);
             if (quarkComponentInstance == null) {
                 if (businessContext.getBusinessMode() == BusinessModeTypeEnum.Normal) {
-                    String msg = "此业务正向模式不能继续,SerialNO:" + businessContext.getSerialNo();
+                    String msg = "current mode " + businessContext.isPrimary() + " can not continue,SerialNO:" +
+                            businessContext.getSerialNo();
                     throw new CanNotExecuteException(msg);
                 } else {
                     String msg = "此业务补偿模式不能继续,SerialNO:" + businessContext.getSerialNo();
@@ -133,26 +138,42 @@ public abstract class AbstractBusinessComponent<TFlow extends Flow, TExecutor ex
             }
             AbstractQuarkComponent quarkComponent = ServiceLocator.getLocator().getService
                     (quarkComponentDescriptor.getClazz());
-            logger.debug("获取quark组件实例成功,Clazz:" + quarkComponentDescriptor.getClazz().getName());
+//            logger.debug("获取quark组件实例成功,Clazz:" + quarkComponentDescriptor.getClazz().getName());
             businessContext.setCurrentQuarkDescriptor(quarkComponentDescriptor);
             businessContext.setCurrentQuarkSerialNo(quarkComponentInstance.getSerialNo());
-            logger.info("quark开始执行,Name:" + quarkComponentDescriptor.getTargetQuarkName());
-            long begin = System.currentTimeMillis();
+//            logger.info("quark开始执行,Name:" + quarkComponentDescriptor.getTargetQuarkName());
+
             result = quarkComponent.run(businessContext);
-            long end = System.currentTimeMillis();
-            result.setTotalMillis(end - begin);
-            logger.info("quark执行完毕,Name:" + quarkComponentDescriptor.getTargetQuarkName());
-        }catch (CanNotExecuteException ex){
+//            logger.info("quark执行完毕,Name:" + quarkComponentDescriptor.getTargetQuarkName());
+        } catch (CanNotExecuteException ex) {
             throw ex;
         } catch (Exception ex) {
             String stackTrace = ExceptionUtils.getStackTrace(ex);
             logger.error(stackTrace);
             result.setMessage(stackTrace);
         } finally {
+            long end = System.currentTimeMillis();
+            result.setTotalMillis(end - begin);
+            result.setBeginMillis(begin);
             result.setQuarkComponentInstance(quarkComponentInstance);
             result.setQuarkComponentDescriptor(quarkComponentDescriptor);
         }
         return result;
+    }
+
+    public static String dateFormat(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = formatter.format(date);
+        return dateString;
+    }
+
+    public static Date longToDate(long l) {
+        return new Date(l * 1000);
+    }
+
+    public static String longToDataString(long l) {
+        Date date = longToDate(l);
+        return dateFormat(date);
     }
 
 

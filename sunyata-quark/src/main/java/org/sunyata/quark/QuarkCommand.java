@@ -16,11 +16,11 @@ public class QuarkCommand extends HystrixCommand {
     protected String businName;
     protected String quarkName;
     protected MessageQueueService messageQueueService;
-    protected QuarkExecutor businessManager;
+    protected QuarkExecutor quarkExecutor;
     protected String serialNo;
 
-    public QuarkCommand setBusinessManager(QuarkExecutor businessManager) {
-        this.businessManager = businessManager;
+    public QuarkCommand setBusinessManager(QuarkExecutor quarkExecutor) {
+        this.quarkExecutor = quarkExecutor;
         return this;
     }
 
@@ -73,7 +73,7 @@ public class QuarkCommand extends HystrixCommand {
     protected Object run() throws Exception {
         try {
             //long now = System.currentTimeMillis();
-            businessManager.run(this.serialNo);
+            quarkExecutor.run(this.serialNo);
             return null;
         } catch (Exception ex) {
             logger.error("ERROR:{}", ExceptionUtils.getStackTrace(ex));

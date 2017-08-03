@@ -159,7 +159,7 @@ public abstract class AbstractFlow implements Flow {
         List<QuarkComponentInstance> collect = sortedStream.collect(Collectors.toList());
 
         StringBuilder sb = new StringBuilder();
-        logger.info("流水号为:{}的quark实例列表", businessContext.getSerialNo());
+        logger.info("quark instance list of serialNO {}", businessContext.getSerialNo());
         sb.append(System.getProperty("line.separator"));
         for (QuarkComponentInstance instance : collect) {
             sb.append(instance.getTargetQuarkName() + "--" + instance.getOrderby() + "--" + instance.getSubOrder()

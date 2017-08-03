@@ -47,9 +47,6 @@ public class BusinessComponentListener implements ApplicationListener<BusinessCo
     @Override
     public void onApplicationEvent(BusinessComponentEvent event) {
         try {
-            logger.info("BusinessComponentListener current Thread:{},流水号:{}", Thread.currentThread().getName(), event
-                    .getSerialNo());
-            //businessManager.run(event.getSerialNo());
             messageQueueService.enQueue(event.getBusinName(), event.getBusinName(), 0, event.getSerialNo(), true);
         } catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));

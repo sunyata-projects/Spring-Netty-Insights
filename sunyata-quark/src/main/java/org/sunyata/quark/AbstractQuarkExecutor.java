@@ -15,12 +15,16 @@ import org.sunyata.quark.notify.FastExecutor;
 import org.sunyata.quark.notify.NotifyExecutor;
 import org.sunyata.quark.publish.EventPublisher;
 import org.sunyata.quark.store.*;
+import org.sunyata.quark.util.DateUtils;
 import org.sunyata.quark.util.StringUtils;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -96,28 +100,30 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
 
     @Override
     public void quarkNotify(String serialNo, Integer quarkIndex, ProcessResult result) throws Exception {
-        logger.info("[Quark结果通知]SerialNO:" + serialNo + ",QuarkIndex:" + quarkIndex + ",Result:" + Json.encode
-                (result));
+        logger.debug("Receive Quark Provider Message: SerialNO:" + serialNo + ",QuarkIndex:" + quarkIndex + "," +
+                "Result:" + Json.encode(result));
         BusinessLock lock = obtainBusinessLock(serialNo);
-        logger.info("[Quark结果通知]获取锁,SerianNo:" + serialNo);
-        lock.acquire(3, TimeUnit.SECONDS);
+        boolean acquire = lock.acquire(3, TimeUnit.SECONDS);
+        if (!acquire) {
+            logger.debug("could not acquire the lock ,serialNO:{}", serialNo);
+            return;
+        }
         BusinessContext context = null;
         ProcessResult run = null;
         try {
             BusinessInstanceStore bestService = ServiceLocator.getBestService(BusinessInstanceStore.class);
             BusinessComponentInstance instance = bestService.load(serialNo);
             if (instance == null) {
-                logger.error("[Quark结果通知]组件实例不存在:SerialNO:" + serialNo);
+                logger.error("business instance {} is not exist", serialNo);
                 throw new CanNotFindComponentInstanceException("businessInstance cannot be found");
             }
             instance.readOriginalHashCode();
             AbstractBusinessComponent abstractBusinessComponent = getBusinessManager().getBusinessComponent(instance
                     .getBusinName());
             if (abstractBusinessComponent == null) {
-                logger.error("[Quark结果通知]组件不存在,Name:" + instance.getBusinName());
-                throw new CanNotFindComponentException("没有找到组件");
+                logger.error("business component {} is not exist", instance.getBusinName());
+                throw new CanNotFindComponentException("can not find business component");
             }
-
             context = BusinessContext.getContext(serialNo, abstractBusinessComponent, instance);
             context.setPrimary(true);
             context.setBusinessMode(instance.getBusinessMode());
@@ -133,15 +139,19 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
     public ProcessResult runByManual(String serialNo, int quarkIndex, String parameterString) throws
             Exception {
         BusinessLock lock = obtainBusinessLock(serialNo);
-        logger.info("获取锁,SerianNo:" + serialNo);
-        lock.acquire();
+        boolean acquire = lock.acquire(3, TimeUnit.SECONDS);
+        if (!acquire) {
+            logger.debug("could not acquire the lock ,serialNO:{}", serialNo);
+            return ProcessResult.r().setMessage("could not acquire the lock");
+        }
         ProcessResult run = ProcessResult.r();
         BusinessContext context = null;
         try {
             BusinessInstanceStore bestService = ServiceLocator.getBestService(BusinessInstanceStore.class);
             BusinessComponentInstance instance = bestService.load(serialNo);
             if (instance == null) {
-                throw new CanNotFindComponentInstanceException("组件实例不存在,SerialNO:" + serialNo);
+                logger.error("business instance {} is not exist", serialNo);
+                throw new CanNotFindComponentInstanceException("business instance is not exist");
             }
             if (!StringUtils.isEmpty(parameterString)) {
                 HashMap hashMap = Json.decodeValue(parameterString, HashMap.class);
@@ -153,7 +163,7 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
             AbstractBusinessComponent abstractBusinessComponent = getBusinessManager().getBusinessComponent(instance
                     .getBusinName());
             if (abstractBusinessComponent == null) {
-                throw new CanNotFindComponentInstanceException("组件实例不存在,SerialNO:" + serialNo);
+                throw new CanNotFindComponentInstanceException("can not find business component,SerialNO:" + serialNo);
             }
 
             context = BusinessContext.getContext(serialNo, abstractBusinessComponent, instance);
@@ -168,12 +178,12 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
     }
 
     private void runFastWithParameter(String serialNo, boolean isPrimary) throws Exception {
-        logger.debug("quark业务组件开始执行,SerianNo:" + serialNo);
         BusinessLock lock = obtainBusinessLock(serialNo);
-        logger.debug("quark业务组件开始执行,获取锁,SerianNo:" + serialNo);
-        lock.acquire(3, TimeUnit.SECONDS);
-        logger.debug("quark业务组件开始执行,获取锁成功,SerianNo:" + serialNo);
-
+        boolean acquire = lock.acquire(3, TimeUnit.SECONDS);
+        if (!acquire) {
+            logger.debug("could not acquire the lock ,serialNO:{}", serialNo);
+            return;
+        }
         BusinessComponentInstance instance = null;
         BusinessContext context = null;
         List<ProcessResult> results = new ArrayList<>();
@@ -194,58 +204,55 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
                 ProcessResult run = new FastExecutor().run(context);
                 if (run.getProcessResultType() == ProcessResultTypeEnum.N) {//此模式不能继续
                     if (isPrimary != context.isPrimary()) {//已经被改变过,不用再改变,会引起死循环
-                        logger.debug("context.isPrimary已经被改变过,无需再改变,循环Break");
+                        logger.debug("The property isPrimary is changed,break");
                         break;
                     }
                     //如果辅助线程,则换成主线程
                     //如果是主线程为什么不切换到辅助线程是因为重试需要一个时间等待,所以只有辅助时才切换
                     if (!isPrimary) {
                         context.setPrimary(!isPrimary);
-                        logger.debug("如果是重试,则更改isPrimary的值,Continue");
                         continue;
                     }
                 }
                 results.add(run);
                 saveInstanceOutputParameters(context.getInstance(), run);
                 i++;
-                logger.debug("quark执行第{}步", i);
+                logger.debug("The current execution to step {}", i);
 
                 if (instance.getCanContinue() != CanContinueTypeEnum.CanContinue) {//业务不能继续
-                    logger.debug("业务不能继续,循环Break");
+                    logger.debug("can not continue,Break");
                     break;
                 }
 
                 if (run.getProcessResultType() == ProcessResult.r().getProcessResultType()) {//如果返回存疑
                     if (!isPrimary) {//如果是重试模式
-                        logger.debug("返回存疑并且重试模式,循环Break");
+//                        logger.debug("返回存疑并且重试模式,循环Break");
                         break;
                     }
                 }
                 QuarkComponentInstance quarkComponentInstance = context.getBusinessComponent().getFlow()
                         .selectQuarkComponentInstance(context);
                 if (quarkComponentInstance == null) {//当前模式无法继续
-                    logger.debug("quarkComponentInstance为空,循环Break");
+//                    logger.debug("quarkComponentInstance为空,循环Break");
                     break;
                 }
                 if (i > stepCount) {//保险起见,避免无限循环
-                    logger.debug("超过最大循环次数,循环Break");
+//                    logger.debug("超过最大循环次数,循环Break");
                     break;
                 }
             }
         } finally {
             try {
                 //写日志
-                logger.debug("开始写日志,日志条数:{}", results.size());
+                logger.debug("start synchronization business state,logs count:{}", results.size());
                 if (results.size() > 0) {
                     syncBusinessStatus(context, results);
                 }
             } catch (Exception ex) {
-                logger.error("写日志时发生错误:{}", ExceptionUtils.getStackTrace(ex));
+                logger.error("An error occurred when writing log:{}", ExceptionUtils.getStackTrace(ex));
             }
-            logger.debug("开始释放锁");
             lock.release();
         }
-
     }
 
 
@@ -253,39 +260,39 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
     public void retry() throws Exception {
         BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
         List<BusinessComponentInstance> topNWillRetryBusiness = bestService.findTopNWillRetryBusiness(200);
-        logger.info("业务组件实例重试数量:{}", topNWillRetryBusiness.size());
+        logger.info("Business component instance number of retries for {}", topNWillRetryBusiness.size());
         BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
         for (BusinessComponentInstance instance : topNWillRetryBusiness) {
-            logger.debug("重试业务更新流水号为{}的业务组件最后时间", instance.getSerialNo());
+//            logger.debug("重试业务更新流水号为{}的业务组件最后时间", instance.getSerialNo());
             businessInstanceStore.updateBusinessComponentUpdateDateTime(instance.getSerialNo(), System
                     .currentTimeMillis());
-            logger.info("开始重试,业务组件流水号:{},重试中...", instance.getSerialNo());
+            logger.info("retry to execute the business component:{}...", instance.getSerialNo());
             long delay = instance.getCreateDateTime().getTime() - System.currentTimeMillis();
-            getMessageQueueService().enQueue(instance.getBusinName(), instance.getBusinName(), delay, instance.getSerialNo(),
+            getMessageQueueService().enQueue(instance.getBusinName(), instance.getBusinName(), delay, instance
+                            .getSerialNo(),
                     false);
         }
     }
 
     @Override
     public void retry(String serialNo) throws Exception {
-        logger.info("[Quark业务重试]SerianNo:" + serialNo);
         runFastWithParameter(serialNo, false);
-        logger.info("[Quark业务重试完成]SerianNo:" + serialNo);
     }
 
     @Override
     public void reBegin() throws Exception {
         BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
         List<BusinessComponentInstance> topNWillRetryBusiness = bestService.findPastTenMinutesWillReBeginBusiness();
-        logger.info("业务组件实例重新开始数量:{}", topNWillRetryBusiness.size());
+        logger.info("Business component instance number of restart for {}", topNWillRetryBusiness.size());
         BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
         for (BusinessComponentInstance instance : topNWillRetryBusiness) {
-            logger.info("重开job更新流水号为{}业务组件最后时间", instance.getSerialNo());
+            logger.info("restart to execute the business component:{}...", instance.getSerialNo());
             businessInstanceStore.updateBusinessComponentUpdateDateTime(instance.getSerialNo(), System
                     .currentTimeMillis());
             long delay = instance.getCreateDateTime().getTime() - System.currentTimeMillis();
-            getMessageQueueService().enQueue(instance.getBusinName(), instance.getBusinName(), delay, instance.getSerialNo
-                    (), true);
+            getMessageQueueService().enQueue(instance.getBusinName(), instance.getBusinName(), delay, instance
+                    .getSerialNo
+                            (), true);
         }
     }
 
@@ -309,7 +316,7 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
 
     protected void syncBusinessStatus(BusinessContext businessContext, List<ProcessResult> results) throws
             InstantiationException,
-            IllegalAccessException, IOException {
+            IllegalAccessException, IOException, ParseException {
         BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore
                 .class);
         List<QuarkComponentLog> logs = new ArrayList<>();
@@ -327,7 +334,9 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
                     quarkComponentInstance.getQuarkFriendlyName(),
                     result.getProcessResultType(),
                     Thread.currentThread().getName(),
-                    result.getMessage(), String.valueOf(result.getTotalMillis()));
+                    result.getMessage(),
+                    DateUtils.longToString(result.getBeginMillis(),"yyyy-MM-dd HH:mm:ss"),
+                    String.valueOf(result.getTotalMillis()));
             logs.add(quarkComponentLog);
         }
         businessInstanceStore.syncBusinessStatus(businessContext.getInstance(), logs);
@@ -352,31 +361,34 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
         }
     }
 
+    ExecutorService executorService = Executors.newFixedThreadPool(5);
+
     protected void publishContinue(ProcessResult result, BusinessContext businessContext) throws Exception {
+
         //publish next quarkComponent
-        if (result.getQuarkComponentInstance() != null) {
-            if (businessContext.getInstance().getCanContinue() == CanContinueTypeEnum.CanContinue) {
-                try {
-                    EventPublisher.getPublisher().publish(businessContext.getInstance().getBusinName(),
-                            businessContext
-                                    .getInstance().getSerialNo());
-                } catch (Exception e) {
-                    logger.error(ExceptionUtils.getStackTrace(e));
-                }
-            }
-        }
-//        this.executorService.execute((Runnable) () -> {
-//            if (result.getQuarkComponentInstance() != null) {
-//                if (businessContext.getInstance().getCanContinue() == CanContinueTypeEnum.CanContinue) {
-//                    try {
-//                        EventPublisher.getPublisher().publish(businessContext.getInstance().getBusinName(),
-//                                businessContext
-//                                        .getInstance().getSerialNo());
-//                    } catch (Exception e) {
-//                        logger.error(ExceptionUtils.getStackTrace(e));
-//                    }
+//        if (result.getQuarkComponentInstance() != null) {
+//            if (businessContext.getInstance().getCanContinue() == CanContinueTypeEnum.CanContinue) {
+//                try {
+//                    EventPublisher.getPublisher().publish(businessContexnot.getInstance().getBusinName(),
+//                            businessContext
+//                                    .getInstance().getSerialNo());
+//                } catch (Exception e) {
+//                    logger.error(ExceptionUtils.getStackTrace(e));
 //                }
 //            }
-//        });
+//        }
+        this.executorService.execute((Runnable) () -> {
+            if (result.getQuarkComponentInstance() != null) {
+                if (businessContext.getInstance().getCanContinue() == CanContinueTypeEnum.CanContinue) {
+                    try {
+                        EventPublisher.getPublisher().publish(businessContext.getInstance().getBusinName(),
+                                businessContext
+                                        .getInstance().getSerialNo());
+                    } catch (Exception e) {
+                        logger.error(ExceptionUtils.getStackTrace(e));
+                    }
+                }
+            }
+        });
     }
 }

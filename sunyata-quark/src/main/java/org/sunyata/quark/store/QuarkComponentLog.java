@@ -75,6 +75,17 @@ public class QuarkComponentLog implements Serializable {
     private String processResultString;
     private String totalMilliseconds;
 
+    public String getBeginMilliseconds() {
+        return beginMilliseconds;
+    }
+
+    public QuarkComponentLog setBeginMilliseconds(String beginMilliseconds) {
+        this.beginMilliseconds = beginMilliseconds;
+        return this;
+    }
+
+    private String beginMilliseconds;
+
 
     public String getBusinSerialNo() {
         return businSerialNo;

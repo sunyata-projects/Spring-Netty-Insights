@@ -37,7 +37,8 @@ import java.sql.Timestamp;
 public class BusinessInstanceFactory {
     public static QuarkComponentLog createQuarkComponentLog(String businSerialNo, String serialNo, String
             quarkName, String version, String quarkFriendlyName, ProcessResultTypeEnum processResult, String notes,
-                                                            String processResultString, String totalMilliseconds) {
+                                                            String processResultString, String beginMilliseconds, String
+                                                                    totalMilliseconds) {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         return new QuarkComponentLog()
                 .setBusinSerialNo(businSerialNo)
@@ -49,6 +50,7 @@ public class BusinessInstanceFactory {
                 .setNotes(notes)
                 .setProcessResultString(processResultString)
                 .setCreateDateTime(timestamp)
+                .setBeginMilliseconds(beginMilliseconds)
                 .setTotalMilliseconds(totalMilliseconds);
     }
 

@@ -113,21 +113,21 @@ public class RemoteQuarkComponent extends AbstractQuarkComponent<RemoteQuarkPara
             url = (String) options.getValue("url", null);
         }
 
-        logger.info("quarkProvider name:{},path:{},url:{}", name, path, url);
-        logger.info("本地quarkServer服务名称:{},目标quarkProvider服务名称:{},目标quark名称:{}", quarkServiceName, name, quarkName);
+//        logger.info("quarkProvider name:{},path:{},url:{}", name, path, url);
+        logger.info("current service name:{},target quark provider service name:{},target quark name:{}",
+                quarkServiceName,
+                name,
+                quarkName);
         try {
-            logger.debug("获取FeignContext实例......");
             FeignContext context = applicationContext.getBean(FeignContext.class);
-            logger.debug("获取FeignContext实例完成");
+//            logger.debug("获取FeignContext实例完成");
             parameterInfo.getBusinessContext().setQuarkServiceName(quarkServiceName);
             if (org.apache.commons.lang.StringUtils.isEmpty(name)) {
-                throw new IllegalArgumentException("服务名称不能为空");
+                throw new IllegalArgumentException("The service name cannot be empty");
             }
 
-            logger.debug("获取FeignBuilder实例,服务名称:{}......", name);
             //Feign.Builder builder = feign(context, name);
             Feign.Builder builder = getBuilder(quarkName);
-            logger.debug("获取FeignBuilder实例,服务名称:{}完成", name);
             if (!StringUtils.hasText(url)) {
                 if (!name.startsWith("http")) {
                     url = "http://" + name;
@@ -135,17 +135,12 @@ public class RemoteQuarkComponent extends AbstractQuarkComponent<RemoteQuarkPara
                     url = name;
                 }
                 url += cleanPath(path);
-                logger.debug("quarkProvider Url:{}", url);
-                logger.debug("生成QuarkRemoteClient......");
                 Client client = getOptional(context, name, Client.class);
                 //QuarkRemoteClient quarkRemoteClient = HystrixFeign.builder().client(client).target(QuarkRemoteClient
                         //.class, url);
                 QuarkRemoteClient quarkRemoteClient = loadBalance(builder, name, context, url);
-                logger.debug("生成QuarkRemoteClient完成,{}", quarkRemoteClient.getClass().getName());
-                logger.debug("调用远远程服务......");
                 ProcessResult result = quarkRemoteClient.execute(parameterInfo.getBusinessContext()
                         .generateSerializableContext());
-                logger.debug("调用远远程服务完成");
                 return result;
             }
 
@@ -171,8 +166,9 @@ public class RemoteQuarkComponent extends AbstractQuarkComponent<RemoteQuarkPara
             return result;
         } catch (Exception ex) {
             String stackTrace = ExceptionUtils.getStackTrace(ex);
-            String msg = "调用远程quarkProvider时出错,本地quarkServer服务名称:" + quarkServiceName + ",目标quarkProvider服务名称:" +
-                    name + ",目标quark名称:" + quarkName;
+            String msg = "An error occurred while invoking remote provider,current service name:" +
+                    quarkServiceName + ",target quark service name" +
+                    name + ",target quark name:" + quarkName;
             stackTrace = msg + "-----" + stackTrace;
             logger.error(stackTrace);
             //throw new RemoteExecuteException(stackTrace);
