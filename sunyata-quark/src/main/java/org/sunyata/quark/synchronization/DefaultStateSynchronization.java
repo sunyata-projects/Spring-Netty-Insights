@@ -24,8 +24,10 @@ import org.sunyata.quark.basic.*;
 import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
 import org.sunyata.quark.store.BusinessComponentInstance;
 import org.sunyata.quark.store.QuarkComponentInstance;
+import org.sunyata.quark.util.DateUtils;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 
 /**
  * Created by leo on 17/3/22.
@@ -66,11 +68,23 @@ public class DefaultStateSynchronization implements StateSynchronization {
         }
         QuarkComponentInstance quarkComponentInstance = processResult.getQuarkComponentInstance();
         quarkComponentInstance.setProcessResult(ProcessResultTypeEnum.S);
-//        quarkComponentInstance.setCanContinue(CanContinueTypeEnum.CanNotContinue);
-        BusinessComponentInstance instance = businessContext.getInstance();
         syncBusinessStatus(businessComponent, businessContext, processResult);
     }
 
+
+    private int calculatPriority(ProcessResult result, int retryTimes, long fromDateLong) throws ParseException {
+        String fromDateString = DateUtils.longToString(fromDateLong, "yyyy-MM-dd hh:mm");
+        String toDateString = DateUtils.longToString(System.currentTimeMillis(), "yyyy-MM-dd hh:mm");
+        int minutes = DateUtils.diffToMinutes(fromDateString, toDateString);
+        int createDateTimePriority = minutes / 8;
+        if (result.getProcessResultType() == ProcessResultTypeEnum.S) {
+            return 0;
+        } else if (result.getProcessResultType() == ProcessResultTypeEnum.R) {
+            return retryTimes + 1 + (-1) * createDateTimePriority;
+        } else {
+            return 0;
+        }
+    }
 
     /**
      * 同步未知执行后状态
@@ -235,6 +249,10 @@ public class DefaultStateSynchronization implements StateSynchronization {
         }
 
         instance.setUpdateDateTime(new Timestamp(System.currentTimeMillis()));
+        long timeLong = instance.getCreateDateTime().getTime();
+
+        instance.setPriority(calculatPriority(processResult, processResult.getQuarkComponentInstance()
+                .getExecuteTimes(), instance.getCreateDateTime().getTime()));
 //        if (processResult.getQuarkComponentDescriptor().isAsync()) {
 //            if (processResult.getProcessResultType() == ProcessResultTypeEnum.R) {
 //

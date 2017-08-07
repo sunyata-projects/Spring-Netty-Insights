@@ -70,8 +70,14 @@ public class MatchUnBindBonusQuarkComponent extends AbstractQuarkComponent<Match
     public ProcessResult execute(BarQuarkParameterInfo parameterInfo) throws InterruptedException {
         System.out.println(this.getClass().getName() + "-" + parameterInfo.getField1() + "-" + Thread.currentThread()
                 .getName());
-        Thread.sleep(r.nextInt(3000));
-        return ProcessResult.s().setOutputParameter("money", 3000);
+//        Thread.sleep(r.nextInt(3000));
+        String serialNo = parameterInfo.getBusinessContext().getSerialNo();
+        String substring = serialNo.substring(serialNo.length() - 1, serialNo.length());
+        if(Integer.parseInt(substring)%2==1)
+            return ProcessResult.s().setOutputParameter("money", 3000);
+        else
+            return ProcessResult.r().setOutputParameter("money", 3000);
+            //System.out.println("偶数");
     }
 
     @Override

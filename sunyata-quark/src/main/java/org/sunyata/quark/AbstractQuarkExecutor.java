@@ -335,12 +335,31 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
                     result.getProcessResultType(),
                     Thread.currentThread().getName(),
                     result.getMessage(),
-                    DateUtils.longToString(result.getBeginMillis(),"yyyy-MM-dd HH:mm:ss"),
+                    DateUtils.longToString(result.getBeginMillis(), "yyyy-MM-dd HH:mm:ss"),
                     String.valueOf(result.getTotalMillis()));
             logs.add(quarkComponentLog);
         }
+//        ProcessResult processResult = results.stream()
+//                .filter(p -> p.getQuarkComponentInstance() != null)
+//                .sorted((o1, o2) -> {
+//                    if (Objects.equals(o1.getQuarkComponentInstance().getOrderby(), o2.getQuarkComponentInstance()
+//                            .getOrderby())) {
+//                        return o1.getQuarkComponentInstance().getSubOrder() - o2.getQuarkComponentInstance()
+//                                .getSubOrder();
+//                    } else {
+//                        return o1.getQuarkComponentInstance().getOrderby() - o2.getQuarkComponentInstance()
+//                                .getOrderby();
+//                    }
+//                }).findFirst().orElse(null);
+//        int priority = calculatPriority(processResult, processResult.getQuarkComponentInstance()
+//                .getExecuteTimes());
+//        businessContext.getInstance().setPriority(priority);
+
         businessInstanceStore.syncBusinessStatus(businessContext.getInstance(), logs);
     }
+
+
+
 
     protected BusinessLock obtainBusinessLock(String path) throws Exception {
         BusinessLockService bestService = ServiceLocator.getBestService(BusinessLockService.class);

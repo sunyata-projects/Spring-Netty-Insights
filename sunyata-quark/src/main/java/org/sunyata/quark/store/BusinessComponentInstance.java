@@ -204,6 +204,7 @@ public class BusinessComponentInstance implements Serializable {
         this.outputParameters.put(key, value);
         return this;
     }
+
     public String getRelationId() {
         return relationId;
     }
@@ -221,6 +222,16 @@ public class BusinessComponentInstance implements Serializable {
         this.sponsor = sponsor;
         return this;
     }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public BusinessComponentInstance setPriority(int priority) {
+        this.priority = priority;
+        return this;
+    }
+
     private HashMap<String, Object> outputParameters = new HashMap<>();
 //    private QuarkParameter quarkParameterContext;
 
@@ -311,6 +322,10 @@ public class BusinessComponentInstance implements Serializable {
      * 关联的业务id
      */
     private String relationId;
+
+
+    private int priority;
+
     @Override
     public int hashCode() {
         //return super.hashCode();

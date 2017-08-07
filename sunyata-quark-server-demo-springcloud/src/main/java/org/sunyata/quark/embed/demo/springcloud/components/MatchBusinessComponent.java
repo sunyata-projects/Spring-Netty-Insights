@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.sunyata.quark.DefaultOrchestration;
 import org.sunyata.quark.basic.AbstractBusinessComponent;
 import org.sunyata.quark.basic.Orchestration;
+import org.sunyata.quark.descriptor.QuarkComponentDescriptor;
 import org.sunyata.quark.embed.demo.springcloud.FooFlow;
 import org.sunyata.quark.executor.DefaultExecutor;
 import org.sunyata.quark.server.springcloud.RemoteQuarkComponentDescriptorFactory;
@@ -48,6 +49,10 @@ public class MatchBusinessComponent extends AbstractBusinessComponent<FooFlow, D
 //        QuarkComponentDescriptor descriptor = QuarkComponentDescriptorFactory.getDescriptor(RetryQuarkComponent
 // .class);
 //        descriptor.getOptions().setRetryLimitTimes(-1);
+        QuarkComponentDescriptor matchUnBindBonusQuarkComponent = RemoteQuarkComponentDescriptorFactory.getDescriptor
+                ("quark-provider-1",
+                "MatchUnBindBonusQuarkComponent");
+        matchUnBindBonusQuarkComponent.getOptions().setRetryLimitTimes(-1);
         Orchestration<FooFlow> orchestration =
                 new DefaultOrchestration<FooFlow>()
 
@@ -75,8 +80,7 @@ public class MatchBusinessComponent extends AbstractBusinessComponent<FooFlow, D
                         .next(RemoteQuarkComponentDescriptorFactory.getDescriptor("quark-provider-1",
                                 "MatchUnBindBonusForAbandonPlayerQuarkComponent"))
                         .succeed()
-                        .next(RemoteQuarkComponentDescriptorFactory.getDescriptor("quark-provider-1",
-                                "MatchUnBindBonusQuarkComponent"))
+                        .next(matchUnBindBonusQuarkComponent)
                         .succeed()
                         .setBusinessComponentDescriptor(this.initializeDescriptor());
 

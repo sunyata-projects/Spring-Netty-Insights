@@ -52,7 +52,7 @@ public interface BusinessMapper {
 
     @Update("UPDATE BusinessComponent SET businStatus=#{businStatus},notes=#{notes}," +
             "businessMode=#{businessMode},needToRetry=${needToRetry},canContinue=#{canContinue}, " +
-            "updateDateTime=#{updateDateTime} WHERE " +
+            "updateDateTime=#{updateDateTime},priority=#{priority} WHERE " +
             "serialNo=#{serialNo}")
     void updateBusinessComponent(BusinessComponentInstance businessComponentInstance);
 
@@ -74,8 +74,9 @@ public interface BusinessMapper {
             "#{processResult},#{notes},#{processResultString},#{totalMilliseconds},#{beginMilliseconds})")
     void insertByComponentLog(QuarkComponentLog quarkComponentLog);
 
-    @Select("SELECT * FROM BusinessComponent WHERE TIMEDIFF(now(),updateDateTime) >'00:02:00' and  " +
-            "businessMode = 'Normal' and needToRetry=1 and canContinue='CanContinue' order by updateDateTime")
+    @Select("SELECT * FROM BusinessComponent WHERE TIMEDIFF(now(),updateDateTime) >'00:00:30' and  " +
+            "businessMode = 'Normal' and needToRetry=1 and canContinue='CanContinue' order by priority  " +
+            "asc, createDateTime asc")
     List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n);
 
 
