@@ -41,7 +41,11 @@ import java.util.Map;
  * Created by leo on 16/12/14.
  */
 public class QuarkFeignClientImpl implements QuarkFeignClient {
-    private final String name;
+    public String getName() {
+        return name;
+    }
+
+    private String name;
     private org.slf4j.Logger logger = LoggerFactory.getLogger(QuarkFeignClientImpl.class);
 
     public QuarkFeignClientImpl(String name) {

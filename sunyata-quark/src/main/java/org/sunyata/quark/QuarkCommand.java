@@ -55,9 +55,9 @@ public class QuarkCommand extends HystrixCommand {
                                 .withMaxQueueSize(10000)
                                 .withQueueSizeRejectionThreshold(10000))
         );
-        if (!quarkName.substring(0, 1).equals("M") && !quarkName.substring(0, 1).equals("N")) {
-            logger.error("quarkName:{}", quarkName);
-        }
+//        if (!quarkName.substring(0, 1).equals("M") && !quarkName.substring(0, 1).equals("N")) {
+//            logger.error("quarkName:{}", quarkName);
+//        }
         this.businName = businName;
         this.quarkName = quarkName;
         this.serialNo = serialNo;

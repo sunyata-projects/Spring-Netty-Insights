@@ -73,4 +73,5 @@ public interface QuarkFeignClient {
                               @Param("parameterString") String parameterString,
                               @Param("autoRun") boolean autoRun)
             throws Exception;
+    String getName();
 }

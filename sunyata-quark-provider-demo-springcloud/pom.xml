@@ -15,7 +15,7 @@
         <dependency>
             <groupId>org.sunyata</groupId>
             <artifactId>sunyata-quark-provider-springcloud</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.sunyata</groupId>
             <artifactId>sunyata-quark-client</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
 

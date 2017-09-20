@@ -28,8 +28,9 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sunyata.quark.store.BusinessQueryService;
-import org.sunyata.quark.store.*;
+import org.sunyata.quark.store.BusinessComponentInstance;
+import org.sunyata.quark.store.QuarkComponentInstance;
+import org.sunyata.quark.store.QuarkComponentLog;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,8 +39,8 @@ import java.util.List;
 /**
  * Created by leo on 17/3/20.
  */
-public class SimpleBusinessInstanceStore implements BusinessInstanceStore, BusinessInstanceLoader,
-        BusinessQueryService {
+public class SimpleBusinessInstanceStore
+         {
 
     Logger logger = LoggerFactory.getLogger(SimpleBusinessInstanceStore.class);
 
@@ -65,7 +66,7 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
         return sqlSessionFactory;
     }
 
-    @Override
+   // @Override
     public void create(BusinessComponentInstance instance) {
         long startTime = System.currentTimeMillis();   //获取开始时间
         try (SqlSession session = getSqlSessionFactory().openSession(false)) {
@@ -90,7 +91,7 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
         }
     }
 
-    @Override
+   // @Override
     public void syncBusinessStatus(BusinessComponentInstance instance, QuarkComponentLog quarkComponentLog) throws IOException {
         try (SqlSession session = getSqlSessionFactory().openSession(false)) {
             BusinessMapper mapper = session.getMapper(BusinessMapper.class);
@@ -104,18 +105,18 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
         }
     }
 
-    @Override
+    //@Override
     public void syncBusinessStatus(BusinessComponentInstance instance, List<QuarkComponentLog> quarkComponentLogs) throws IOException {
 
     }
 
-    @Override
+   // @Override
     public void updateBusinessComponentUpdateDateTime(String serialNo, long updateDateTime) {
 
     }
 
 
-    @Override
+    //@Override
     public BusinessComponentInstance load(String serialNo) throws IOException {
         SqlSession session = getSqlSessionFactory().openSession();
         BusinessComponentInstance byName = getBusinessMapper(session).findByName(serialNo);
@@ -128,7 +129,7 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
         return byName;
     }
 
-    @Override
+    //@Override
     public List<QuarkComponentInstance> findQuarkComponentInstances(String serialNo) throws IOException {
         SqlSession session = getSqlSessionFactory().openSession();
         List<QuarkComponentInstance> quarkComponentInstances = getBusinessMapper(session).findAtomicComponentInstances
@@ -136,19 +137,19 @@ public class SimpleBusinessInstanceStore implements BusinessInstanceStore, Busin
         return quarkComponentInstances;
     }
 
-    @Override
+   // @Override
     public List<BusinessComponentInstance> findTopNWillCompensationBusiness(Integer n) {
         return null;
     }
 
-    @Override
+    //@Override
     public List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n) {
         PageHelper.startPage(0, n, "updateDateTime");
 //        return businessMapper.findTopNWillRetryBusiness(n);
         return null;
     }
 
-    @Override
+    //@Override
     public List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness() {
         return null;
     }

@@ -80,7 +80,7 @@ public class DefaultStateSynchronization implements StateSynchronization {
         if (result.getProcessResultType() == ProcessResultTypeEnum.S) {
             return 0;
         } else if (result.getProcessResultType() == ProcessResultTypeEnum.R) {
-            return retryTimes + 1 + (-1) * createDateTimePriority;
+            return result.getManualReducePriority() + retryTimes + 1 + (-1) * createDateTimePriority;
         } else {
             return 0;
         }

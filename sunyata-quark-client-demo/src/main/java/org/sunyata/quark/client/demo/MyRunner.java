@@ -74,7 +74,8 @@ public class MyRunner implements CommandLineRunner {
             //edyQuarkClient.createAsync(serialNo, "SingleBusinessComponent", Json.encode(parameters), true);
             serialNo = ids.get(i);
 
-            edyQuarkClient.createAsync(serialNo, "MatchBusinessComponent", Json.encode(parameters), true);
+            edyQuarkClient.createSyncIfNecessary(serialNo, "MatchBusinessComponent",null,null, Json.encode
+                    (parameters), true);
 
         }
         System.out.println(ids);

@@ -29,7 +29,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.sunyata.quark.MessageDispatchService;
 import org.sunyata.quark.QuarkExecutor;
 
@@ -59,20 +58,20 @@ public class QuarkServerInitializeConfiguration implements ApplicationContextAwa
     MessageDispatchService messageDispatchService;
 
 
-
-    @Scheduled(initialDelayString = "${quark.initialDelay:5000}", fixedDelayString = "${quark.fixedDelay:300000}")
-    public void retryBusiness() throws Exception {
-        if (quarkServerProperties.getRetryEnable()) {
-            quarkExecutor.retry();
-        }
-    }
-
-    @Scheduled(initialDelayString = "${quark.initialDelay:10000}", fixedDelayString = "${quark.fixedDelay:300000}")
-    public void reBeginBusiness() throws Exception {
-        if (quarkServerProperties.getRetryEnable()) {
-            quarkExecutor.reBegin();
-        }
-    }
+//
+//    @Scheduled(initialDelayString = "${quark.initialDelay:5000}", fixedDelayString = "${quark.fixedDelay:300000}")
+//    public void retryBusiness() throws Exception {
+//        if (quarkServerProperties.getRetryEnable()) {
+//            quarkExecutor.retry();
+//        }
+//    }
+//
+//    @Scheduled(initialDelayString = "${quark.initialDelay:10000}", fixedDelayString = "${quark.fixedDelay:300000}")
+//    public void reBeginBusiness() throws Exception {
+//        if (quarkServerProperties.getRetryEnable()) {
+//            quarkExecutor.reBegin();
+//        }
+//    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

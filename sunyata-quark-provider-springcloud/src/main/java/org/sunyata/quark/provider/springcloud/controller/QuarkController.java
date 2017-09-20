@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.sunyata.quark.basic.AbstractQuarkComponent;
 import org.sunyata.quark.basic.BusinessContext;
 import org.sunyata.quark.basic.ProcessResult;
+import org.sunyata.quark.json.Json;
 import org.sunyata.quark.provider.springcloud.RetryCallBackService;
 import org.sunyata.quark.provider.springcloud.SpringContextUtilForProvider;
 import rx.Observable;
@@ -54,8 +57,9 @@ public class QuarkController {
     RetryCallBackService retryCallBackService;
 
     @RequestMapping(value = "/run", method = RequestMethod.POST)
-    public ProcessResult run(@RequestBody BusinessContext businessContext) throws Exception {
+    public ResponseEntity<ProcessResult> run(@RequestBody BusinessContext businessContext) throws Exception {
         String quarkName = null;
+        logger.info("开始处理请求:{}", Json.encode(businessContext));
         try {
             quarkName = (String) businessContext.getCurrentQuarkDescriptor().getOptions().getValue
                     ("quark-name", null);
@@ -63,7 +67,9 @@ public class QuarkController {
                 String format = String.format("the parameter 'quark-name' can not be empty,business serial number:%s",
                         businessContext.getCurrentQuarkSerialNo());
                 logger.error(format);
-                return ProcessResult.e().setMessage(format);
+                //return ProcessResult.e().setMessage(format);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ProcessResult.e().setMessage
+                        (format));
             }
             AbstractQuarkComponent bean = (AbstractQuarkComponent) SpringContextUtilForProvider.getBean(quarkName,
                     AbstractQuarkComponent.class);
@@ -71,7 +77,8 @@ public class QuarkController {
             boolean async = businessContext.getCurrentQuarkDescriptor().isAsync();
             long begin = System.currentTimeMillis();
             if (async) {
-                Observable.fromCallable(() -> bean.run(businessContext)).observeOn(Schedulers.newThread())
+                Observable.fromCallable(() -> bean.run(businessContext))
+                        .observeOn(Schedulers.newThread())
                         .subscribeOn(Schedulers.newThread())
                         .subscribe(result -> {
                             try {
@@ -84,22 +91,60 @@ public class QuarkController {
                                 logger.error(ExceptionUtils.getStackTrace(e));
                             }
                         });
-                return run;
+                //return run;
+//                run.setMessage("异步访问,直接返回");
+                logger.info("异步处理请求完毕:{}",Json.encode(run));
+                return ResponseEntity.ok(run);
             }
 
             run = bean.run(businessContext);
-            return run;
+            logger.info("同步处理请求完毕:{}",Json.encode(run));
+            return ResponseEntity.ok(run);
+            //return run;
 
         } catch (BeansException beanException) {
             String logString = String.format("failed to find %s quark", quarkName);
             logger.error(logString);
-            return ProcessResult.r().setMessage(logString);
+            //return ProcessResult.r().setMessage(logString);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ProcessResult.r().setMessage
+                    (logString));
         } catch (Exception ex) {
             logger.error(ExceptionUtils.getStackTrace(ex));
-            return ProcessResult.r().setMessage(ExceptionUtils.getStackTrace(ex));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ProcessResult.r().setMessage
+                    (ExceptionUtils.getStackTrace(ex)));
+            //return ProcessResult.r().setMessage(ExceptionUtils.getStackTrace(ex));
         }
     }
 
+    //                final ProcessResult finalRun = run;
+//                Observable.fromCallable(new Callable<ProcessResult>() {
+//                    @Override
+//                    public ProcessResult call() throws Exception {
+//                        try {
+//                            return bean.run(businessContext);
+//                        } catch (Exception ex) {
+//                            return finalRun.setMessage(ExceptionUtils.getStackTrace(ex));
+//                        }
+//                    }
+//                })
+//                        .observeOn(Schedulers.newThread())
+//                        .subscribeOn(Schedulers.newThread())
+//                        .subscribe(new Action1<ProcessResult>() {
+//                            @Override
+//                            public void call(ProcessResult result) {
+//                                try {
+//                                    result.setBeginMillis(begin);
+//                                    result.setTotalMillis(System.currentTimeMillis() - begin);
+//                                    retryCallBackService.callBack(businessContext.getQuarkServiceName(),
+// businessContext
+//                                                    .getSerialNo(), businessContext.getCurrentQuarkDescriptor()
+//                                                    .getOrder(),
+//                                            result);
+//                                } catch (Exception e) {
+//                                    logger.error(ExceptionUtils.getStackTrace(e));
+//                                }
+//                            }
+//                        });
     private static Callable<Integer> thatReturnsNumberOne() {
         return () -> {
             System.out.println("Observable thread: " + Thread.currentThread().getName());

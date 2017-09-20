@@ -26,6 +26,8 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.sunyata.quark.client.dto.BusinessComponentDescriptor;
 import org.sunyata.quark.client.dto.BusinessComponentInstance;
+import org.sunyata.quark.client.exception.MQConnectionException;
+import org.sunyata.quark.client.exception.QuarkServerNotFoundException;
 import org.sunyata.quark.client.json.Json;
 import org.sunyata.quark.client.message.ComplexMessageInfo;
 import org.sunyata.quark.client.message.CreateBusinessComponentMessageInfo;
@@ -115,6 +117,17 @@ public class QuarkClientImpl implements QuarkClient {
     }
 
     @Override
+    public void createSyncIfNecessary(String serialNo, String businName, String sponsor, String
+            relationId, String parameterString, boolean autoRun) throws Exception {
+        try {
+            createAsync(serialNo, businName, sponsor, relationId, parameterString, autoRun);
+        } catch (Exception ex) {
+            create(serialNo, businName, sponsor, relationId, parameterString, autoRun);
+        }
+    }
+
+
+    @Override
     public JsonResponseResult<List<BusinessComponentDescriptor>> components() throws Exception {
         return quarkFeignClient.components();
     }
@@ -148,5 +161,27 @@ public class QuarkClientImpl implements QuarkClient {
     @Override
     public JsonResponseResult<BusinessComponentInstance> instance(String serialNo) throws Exception {
         return quarkFeignClient.instance(serialNo);
+    }
+
+    @Override
+    public void selfCheck() throws MQConnectionException, QuarkServerNotFoundException {
+        ComplexMessageInfo messageInfo = new ComplexMessageInfo();
+        messageInfo.setJobInfoType(MessageInfoType.RunBySerialNo);
+        messageInfo.setBodyJsonString(Json.encode(new RunBySerialMessageInfo().setSerialNo("-1")));
+        String messageInfoString = Json.encode(messageInfo);
+        try {
+            rabbitTemplate.convertAndSend(rabbitExchange, rabbitQueue, messageInfoString);
+        } catch (AmqpException aex) {
+            String host = rabbitTemplate.getConnectionFactory().getHost();
+            int port = rabbitTemplate.getConnectionFactory().getPort();
+            throw new MQConnectionException("连接MQ异常:" + host + ":" + port);
+        }
+//        try {
+//            quarkFeignClient.run("-1");
+//        } catch (Exception ex) {
+//            String name = quarkFeignClient.getName();
+//            throw new QuarkServerNotFoundException("找不到QuarkServer:" + name);
+//        }
+
     }
 }

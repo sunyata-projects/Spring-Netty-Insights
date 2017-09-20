@@ -35,11 +35,11 @@ public class QuarkServerProperties {
 
     public static final String PREFIX = "quark";
 
-    @Value("${quark.redis.url}")
-    private String redisUrl;
+//    @Value("${quark.redis.url}")
+//    private String redisUrl;
 
-    @Value("${quark.redis.password}")
-    private String redisPassword;
+//    @Value("${quark.redis.password}")
+//    private String redisPassword;
 
     @Value("${quark.zookeeper.connectionString}")
     private String zookeeperConnectionString;
@@ -117,13 +117,13 @@ public class QuarkServerProperties {
         this.retryEnable = retryEnable;
     }
 
-    public String getRedisUrl() {
-        return redisUrl;
-    }
+//    public String getRedisUrl() {
+//        return redisUrl;
+//    }
 
-    public String getRedisPassword() {
-        return redisPassword;
-    }
+//    public String getRedisPassword() {
+//        return redisPassword;
+//    }
 
     public boolean isLogEnable() {
         return logEnable;

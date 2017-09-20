@@ -1,19 +1,3 @@
-/*
- * Copyright (c) 2011-2014 The original author or authors
- * ------------------------------------------------------
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License v2.0 which accompanies this distribution.
- *
- *     The Eclipse Public License is available at
- *     http://www.eclipse.org/legal/epl-v10.html
- *
- *     The Apache License v2.0 is available at
- *     http://www.opensource.org/licenses/apache2.0.php
- *
- * You may elect to redistribute this code under either of these licenses.
- */
-
 package org.sunyata.quark.json;
 
 import java.time.Instant;
@@ -22,19 +6,6 @@ import java.util.stream.Stream;
 
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
-/**
- * A representation of a <a href="http://json.org/">JSON</a> object in Java.
- * <p>
- * Unlike some other languages Java does not have a native understanding of JSON. To enable JSON to be used easily
- * in Vert.x code we use this class to encapsulate the notion of a JSON object.
- * <p>
- * The implementation adheres to the <a href="http://rfc-editor.org/rfc/rfc7493.txt">RFC-7493</a> to support Temporal
- * data types as well as binary data.
- * <p>
- * Please see the documentation for more information.
- *
- * @author <a href="http://tfox.org">Tim Fox</a>
- */
 public class JsonObject implements Iterable<Map.Entry<String, Object>> {
 
     private Map<String, Object> map;

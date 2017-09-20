@@ -98,10 +98,14 @@ public class MatchInitRewardQuarkComponent extends AbstractQuarkComponent<MatchI
 //            quarkClient.createAsync(serialNo, "MatchRewardForSinglePlayerComponent", "", parameterInfo
 //                    .getBusinessContext().getSerialNo(), Json.encode(parameters), true);
         }
-        String matchDeductManageFeeQuarkComponent = (String)parameterInfo.getBusinessContext().getParameter
+        String matchDeductManageFeeQuarkComponent = (String) parameterInfo.getBusinessContext().getParameter
                 ("MatchDeductManageFeeQuarkComponent", null);
         Map map = Json.decodeValue(matchDeductManageFeeQuarkComponent, Map.class);
-        return ProcessResult.s().setOutputParameter("money", 3000);
+        if (r.nextInt(100) < 20) {
+            return ProcessResult.s().setOutputParameter("money", 3000);
+        } else {
+            return ProcessResult.r().setOutputParameter("money", 3000);
+        }
     }
 
     @Override

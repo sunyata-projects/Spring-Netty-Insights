@@ -39,6 +39,9 @@ public class ProcessResult implements Serializable {
     private long totalMillis;
     private long beginMillis;
 
+
+    private int manualReducePriority;//手动减少优先级
+
     public Object getBody() {
         return body;
     }
@@ -76,6 +79,15 @@ public class ProcessResult implements Serializable {
 
     public ProcessResult setMessage(String message) {
         this.message = message;
+        return this;
+    }
+
+    public int getManualReducePriority() {
+        return manualReducePriority;
+    }
+
+    public ProcessResult setManualReducePriority(int manualReducePriority) {
+        this.manualReducePriority = manualReducePriority;
         return this;
     }
 

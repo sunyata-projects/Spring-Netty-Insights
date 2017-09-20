@@ -78,10 +78,12 @@ public class BusinessController {
     @RequestMapping(value = "/create", method = RequestMethod.POST, headers = {"content-type=application/json"})
     public JsonResponseResult create(@RequestBody CreateBusinessComponentMessageInfo info) throws
             Exception {
+        BusinessComponentInstance instance = null;
         try {
-            quarkExecutor.create(info.getSerialNo(), info.getBusinName(), info.getSponsor(), info.getRelationId
+            instance = quarkExecutor.create(info.getSerialNo(), info.getBusinName(), info
+                    .getSponsor(), info.getRelationId
                     (), info.getParameterString());
-            if (info.isAutoRun()) {
+            if (instance != null && info.isAutoRun()) {
                 messageQueueService.enQueue(info.getBusinName(), info.getBusinName(), 0, info.getSerialNo(), true);
             }
             return JsonResponseResult.Success();
@@ -108,10 +110,14 @@ public class BusinessController {
             Exception {
         try {
             ProcessResult result = quarkNotifyInfo.getProcessResult();
-            messageQueueService.enQueue("Notify", "Notify", 0, quarkNotifyInfo.getSerialNo(),
+            int delay = 0;
+            if (result.getProcessResultType() != ProcessResultTypeEnum.S) {
+                result.setManualReducePriority(3);
+                delay = 15000;
+            }
+            messageQueueService.enQueue("Notify", "Notify", delay, quarkNotifyInfo.getSerialNo(),
                     quarkNotifyInfo.getQuarkIndex(),
                     result);
-
         } catch (Exception ex) {
             logger.error(ExceptionUtils.getStackTrace(ex));
             return JsonResponseResult.Error(99, ExceptionUtils.getMessage(ex));

@@ -60,11 +60,14 @@ public class MybatisBusinessInstanceStore implements BusinessInstanceStore, Busi
     @Transactional(rollbackFor = Exception.class)
     public void create(BusinessComponentInstance instance) throws Exception {
         try {
+//            String serialNo = mapper.findByBusinNameAndRelationId(instance);
+            //if (StringUtils.isEmpty(serialNo)) {
             mapper.insertByBusinessComponent(instance);
             mapper.insertByQuarkParameter(instance.getQuarkParameter());
             for (QuarkComponentInstance item : instance.getItems()) {
                 mapper.insertByQuarkComponent(item);
             }
+            //}
         } catch (Exception ex) {
             if (ex instanceof DuplicateKeyException) {
                 throw new BusinessComponentConstraintViolationException(ex.getMessage());

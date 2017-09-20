@@ -22,6 +22,8 @@ package org.sunyata.quark.client;
 
 import org.sunyata.quark.client.dto.BusinessComponentDescriptor;
 import org.sunyata.quark.client.dto.BusinessComponentInstance;
+import org.sunyata.quark.client.exception.MQConnectionException;
+import org.sunyata.quark.client.exception.QuarkServerNotFoundException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +51,9 @@ public interface QuarkClient {
     JsonResponseResult create(String serialNo, String businName, HashMap<String, Object> parameters, boolean autoRun)
             throws Exception;
 
+    void createSyncIfNecessary(String serialNo, String businName, String sponsor, String relationId, String
+            parameterString, boolean autoRun) throws Exception;
+
     JsonResponseResult<List<BusinessComponentDescriptor>> components() throws Exception;
 
 
@@ -60,4 +65,6 @@ public interface QuarkClient {
 
 
     JsonResponseResult<BusinessComponentInstance> instance(String serialNo) throws Exception;
+
+    void selfCheck() throws MQConnectionException, QuarkServerNotFoundException;
 }

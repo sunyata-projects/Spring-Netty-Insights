@@ -96,6 +96,9 @@ public interface BusinessMapper {
     void updateBusinessComponentUpdateDateTime(@Param("serialNo") String serialNo, @Param("updateDateTime") Timestamp
             updateDateTime);
 
+    @Select("SELECT id FROM BusinessComponent WHERE businName = #{businName} and relationId = #{relationId}")
+    String findByBusinNameAndRelationId(BusinessComponentInstance instance);
+
 
 //
 //    @Insert("INSERT INTO USER(NAME, AGE) VALUES(#{name}, #{age})")
