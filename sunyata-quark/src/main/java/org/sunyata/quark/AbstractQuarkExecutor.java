@@ -35,9 +35,11 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
     private BusinessManager businessManager;
     private MessageQueueService messageQueueService;
 
-    public AbstractQuarkExecutor() {
-
+    public AbstractQuarkExecutor(String serverId) {
+        this.serverId = serverId;
     }
+
+    String serverId;
 
     public MessageQueueService getMessageQueueService() throws InstantiationException, IllegalAccessException {
         if (messageQueueService == null) {
@@ -52,6 +54,7 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
         }
         return businessManager;
     }
+
 
     @Override
     public BusinessComponentInstance create(String serialNo, String businName, String sponsor, String relationId,
@@ -75,6 +78,7 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
             }
             BusinessComponentInstance instance = BusinessInstanceFactory.createInstance(serialNo, sponsor, relationId,
                     parameterString, abstractBusinessComponent);
+            instance.setServerId(serverId);
             bestService.create(instance);
             logger.info("创建业务组件实例成功,创建参数为:{}", parameterString);
             if (autoRun) {
@@ -257,9 +261,9 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
 
 
     @Override
-    public void retry() throws Exception {
+    public void retryByServerId(String serverId) throws Exception {
         BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
-        List<BusinessComponentInstance> topNWillRetryBusiness = bestService.findTopNWillRetryBusiness(200);
+        List<BusinessComponentInstance> topNWillRetryBusiness = bestService.findTopNWillRetryBusiness(serverId, 200);
         logger.info("Business component instance number of retries for {}", topNWillRetryBusiness.size());
         BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
         for (BusinessComponentInstance instance : topNWillRetryBusiness) {
@@ -280,9 +284,9 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
     }
 
     @Override
-    public void reBegin() throws Exception {
+    public void reBeginByServerId(String serverId) throws Exception {
         BusinessQueryService bestService = ServiceLocator.getBestService(BusinessQueryService.class);
-        List<BusinessComponentInstance> topNWillRetryBusiness = bestService.findPastTenMinutesWillReBeginBusiness();
+        List<BusinessComponentInstance> topNWillRetryBusiness = bestService.findPastTenMinutesWillReBeginBusiness(serverId);
         logger.info("Business component instance number of restart for {}", topNWillRetryBusiness.size());
         BusinessInstanceStore businessInstanceStore = ServiceLocator.getBestService(BusinessInstanceStore.class);
         for (BusinessComponentInstance instance : topNWillRetryBusiness) {
@@ -357,8 +361,6 @@ public class AbstractQuarkExecutor implements QuarkExecutor {
 
         businessInstanceStore.syncBusinessStatus(businessContext.getInstance(), logs);
     }
-
-
 
 
     protected BusinessLock obtainBusinessLock(String path) throws Exception {

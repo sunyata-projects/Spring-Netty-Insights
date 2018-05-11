@@ -32,10 +32,11 @@ import java.util.List;
 @Mapper
 public interface BusinessMapper {
     @Insert("INSERT INTO BusinessComponent(serialNo, businName,businFriendlyName,version," +
-            "businStatus,canContinue,createDateTime,updateDateTime,needToRetry,businessMode,sponsor,relationId) " +
+            "businStatus,canContinue,createDateTime,updateDateTime,needToRetry,businessMode,sponsor,relationId," +
+            "serverId) " +
             "VALUES(#{serialNo}, #{businName},#{businFriendlyName},#{version},#{businStatus}," +
             "#{canContinue},#{createDateTime},#{updateDateTime},#{needToRetry},#{businessMode},#{sponsor}," +
-            "#{relationId})")
+            "#{relationId},#{serverId})")
     int insertByBusinessComponent(BusinessComponentInstance businessComponent);
 
 
@@ -80,9 +81,21 @@ public interface BusinessMapper {
     List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n);
 
 
-    @Select("select * from BusinessComponent where TIMEDIFF(now(),createDateTime) >'00:10:00' and businStatus " +
+    @Select("SELECT * FROM BusinessComponent WHERE TIMEDIFF(now(),updateDateTime) >'00:00:30' and  " +
+            "businessMode = 'Normal' and needToRetry=1 and canContinue='CanContinue' and serverId=#{serverId} order " +
+            "by priority  " +
+            "asc, createDateTime asc")
+    List<BusinessComponentInstance> findTopNWillRetryBusinessByServerId(@Param("serverId") String serverId, Integer n);
+
+    @Select("select * from BusinessComponent where  TIMEDIFF(now(),createDateTime) >'00:10:00' and businStatus " +
             "= 'Initialize' order by updateDateTime ;")
     List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness();
+
+    @Select("select * from BusinessComponent where serverId = #{serverId} and  TIMEDIFF(now(),createDateTime) " +
+            ">'00:10:00'" +
+            " and businStatus " +
+            "= 'Initialize' order by updateDateTime ;")
+    List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusinessByServerId(@Param("serverId") String serverId);
 
 
     @Select("SELECT * FROM QuarkParameter WHERE businessSerialNo = #{serialNo} and parameterType=#{parameterType}")
@@ -98,6 +111,8 @@ public interface BusinessMapper {
 
     @Select("SELECT id FROM BusinessComponent WHERE businName = #{businName} and relationId = #{relationId}")
     String findByBusinNameAndRelationId(BusinessComponentInstance instance);
+
+
 
 
 //

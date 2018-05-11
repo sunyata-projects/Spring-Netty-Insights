@@ -30,7 +30,7 @@
     <!--<groupId>org.sunyata</groupId>-->
     <modelVersion>4.0.0</modelVersion>
     <artifactId>sunyata-quark-server-springcloud</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -73,7 +73,7 @@
         <dependency>
             <groupId>org.sunyata</groupId>
             <artifactId>sunyata-quark</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>

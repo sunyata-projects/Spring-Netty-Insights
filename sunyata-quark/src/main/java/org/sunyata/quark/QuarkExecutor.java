@@ -23,9 +23,9 @@ public interface QuarkExecutor {
 
     void retry(String serialNo) throws Exception;
 
-    void reBegin() throws Exception;
+    void reBeginByServerId(String serverId)throws Exception;
 
-    void retry() throws Exception;
+    void retryByServerId(String serverId) throws Exception;
     void quarkNotify(String serialNo, Integer quarkIndex, ProcessResult result) throws Exception;
 
 }

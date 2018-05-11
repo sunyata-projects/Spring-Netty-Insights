@@ -1,7 +1,12 @@
 package org.sunyata.quark;
 
 /**
- * Created by leo on 17/8/2.
+ *
+ * @author leo
+ * @date 17/8/2
  */
 public class DefaultQuarkExecutor extends  AbstractQuarkExecutor {
+    public DefaultQuarkExecutor(String serverId) {
+        super(serverId);
+    }
 }

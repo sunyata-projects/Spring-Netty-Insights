@@ -326,6 +326,17 @@ public class BusinessComponentInstance implements Serializable {
 
     private int priority;
 
+    public String getServerId() {
+        return serverId;
+    }
+
+    public BusinessComponentInstance setServerId(String serverId) {
+        this.serverId = serverId;
+        return this;
+    }
+
+    private String serverId;
+
     @Override
     public int hashCode() {
         //return super.hashCode();

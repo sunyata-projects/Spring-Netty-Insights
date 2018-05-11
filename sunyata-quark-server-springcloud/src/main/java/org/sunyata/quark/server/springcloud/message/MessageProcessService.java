@@ -28,6 +28,7 @@ public class MessageProcessService {
     @Autowired
     MessageQueueService messageQueueService;
 
+
     public void process(ComplexMessageInfo jobInfo) throws Exception {
         try {
             assert jobInfo != null;

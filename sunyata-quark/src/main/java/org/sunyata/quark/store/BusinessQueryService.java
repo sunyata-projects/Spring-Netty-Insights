@@ -47,9 +47,11 @@ public interface BusinessQueryService {
      */
     List<BusinessComponentInstance> findTopNWillRetryBusiness(Integer n);
 
-
-    List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness();
+//    List<BusinessComponentInstance> findTopNWillRetryBusiness(String serverId, Integer n) ;
+    List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness(String serverId);
 
 
     List<QuarkComponentInstance> findQuarkComponentInstances(String serialNo) throws IOException;
+    List<BusinessComponentInstance> findTopNWillRetryBusiness(String serverId, Integer n) ;
+//    List<BusinessComponentInstance> findTopNWillRetryBusiness(String serverId, Integer n);
 }

@@ -30,9 +30,8 @@
         <dependency>
             <groupId>org.sunyata</groupId>
             <artifactId>sunyata-quark-client</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
-
 
     </dependencies>
 

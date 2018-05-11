@@ -87,8 +87,8 @@ public class EnableQuarkServerConfiguration {
     }
 
     @Bean
-    QuarkExecutor quarkExecutor(){
-        return new DefaultQuarkExecutor();
+    QuarkExecutor quarkExecutor(QuarkServerProperties quarkServerProperties){
+        return new DefaultQuarkExecutor(quarkServerProperties.getServerId());
     }
     @Bean
     MessageDispatchService messageDispatchService(QuarkExecutor

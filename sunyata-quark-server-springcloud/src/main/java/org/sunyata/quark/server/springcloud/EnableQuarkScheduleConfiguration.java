@@ -52,14 +52,15 @@ public class EnableQuarkScheduleConfiguration {
     @Scheduled(initialDelayString = "${quark.initialDelay:5000}", fixedDelayString = "${quark.fixedDelay:300000}")
     public void retryBusiness() throws Exception {
         if (quarkServerProperties.getRetryEnable()) {
-            quarkExecutor.retry();
+            String serverId = quarkServerProperties.getServerId();
+            quarkExecutor.retryByServerId(serverId);
         }
     }
 
     @Scheduled(initialDelayString = "${quark.initialDelay:10000}", fixedDelayString = "${quark.fixedDelay:300000}")
     public void reBeginBusiness() throws Exception {
         if (quarkServerProperties.getRetryEnable()) {
-            quarkExecutor.reBegin();
+            quarkExecutor.reBeginByServerId(quarkServerProperties.getServerId());
         }
     }
 

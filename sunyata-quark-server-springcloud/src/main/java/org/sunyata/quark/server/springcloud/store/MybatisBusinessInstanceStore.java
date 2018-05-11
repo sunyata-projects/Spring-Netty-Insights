@@ -21,6 +21,7 @@
 package org.sunyata.quark.server.springcloud.store;
 
 import com.github.pagehelper.PageHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,6 +124,13 @@ public class MybatisBusinessInstanceStore implements BusinessInstanceStore, Busi
         return quarkComponentInstances;
     }
 
+
+//    @Override
+//    public List<BusinessComponentInstance> findTopNWillRetryBusiness(String serverId, int n) {
+//        PageHelper.startPage(0, n, "updateDateTime");
+//        return mapper.findTopNWillRetryBusiness(serverId, n);
+//    }
+
     @Override
     public void updateBusinessComponentUpdateDateTime(String serialNo, long updateDateTime) {
         try {
@@ -146,8 +154,22 @@ public class MybatisBusinessInstanceStore implements BusinessInstanceStore, Busi
     }
 
     @Override
-    public List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness() {
+    public List<BusinessComponentInstance> findTopNWillRetryBusiness(String serverId, Integer n) {
+        PageHelper.startPage(0, n, "updateDateTime");
+        if (StringUtils.isEmpty(serverId)) {
+            return mapper.findTopNWillRetryBusiness(n);
+        } else {
+            return mapper.findTopNWillRetryBusinessByServerId(serverId, n);
+        }
+    }
+
+    @Override
+    public List<BusinessComponentInstance> findPastTenMinutesWillReBeginBusiness(String serverId) {
         PageHelper.startPage(0, 500, "updateDateTime");
-        return mapper.findPastTenMinutesWillReBeginBusiness();
+        if (StringUtils.isEmpty(serverId)) {
+            return mapper.findPastTenMinutesWillReBeginBusiness();
+        } else {
+            return mapper.findPastTenMinutesWillReBeginBusinessByServerId(serverId);
+        }
     }
 }

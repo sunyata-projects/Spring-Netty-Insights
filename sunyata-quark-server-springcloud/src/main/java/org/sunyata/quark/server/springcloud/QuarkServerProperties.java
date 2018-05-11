@@ -52,6 +52,13 @@ public class QuarkServerProperties {
     @Value("${quark.log.enable:true}")
     private boolean logEnable;
 
+    public String getServerId() {
+        return serverId;
+    }
+
+    @Value("${quark.serverId:}")
+    private String serverId;
+
     @Value("${quark.retry.enable:true}")
     private boolean retryEnable;
 

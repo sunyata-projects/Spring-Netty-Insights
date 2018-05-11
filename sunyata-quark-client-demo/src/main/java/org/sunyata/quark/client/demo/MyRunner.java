@@ -27,15 +27,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.sunyata.quark.client.IdWorker;
-import org.sunyata.quark.client.JsonResponseResult;
 import org.sunyata.quark.client.QuarkClient;
-import org.sunyata.quark.client.dto.BusinessComponentDescriptor;
 import org.sunyata.quark.client.dto.QuarkParameterInfo;
 import org.sunyata.quark.client.json.Json;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 @Component
 public class MyRunner implements CommandLineRunner {
@@ -51,12 +48,12 @@ public class MyRunner implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        JsonResponseResult<List<BusinessComponentDescriptor>> components = edyQuarkClient.components();
-        if (components.getCode() == 0) {
-            for (BusinessComponentDescriptor bcd : components.getResponse()) {
-                logger.info(bcd.getBisinFriendlyName());
-            }
-        }
+//        JsonResponseResult<List<BusinessComponentDescriptor>> components = ccopShareQuarkClient.components();
+//        if (components.getCode() == 0) {
+//            for (BusinessComponentDescriptor bcd : components.getResponse()) {
+//                logger.info(bcd.getBisinFriendlyName());
+//            }
+//        }
         IdWorker idWorker = new IdWorker(0, 0);
         QuarkParameterInfo info = new QuarkParameterInfo();
 
@@ -104,7 +101,7 @@ public class MyRunner implements CommandLineRunner {
     static IdWorker idWorker = new IdWorker(0, 1);
 
     void generateSerialNo() {
-        while (ids.size() < 1000) {
+        while (ids.size() < 100) {
             String serialNo = String.valueOf(idWorker.nextId());
             if (ids.contains(serialNo)) {
                 continue;

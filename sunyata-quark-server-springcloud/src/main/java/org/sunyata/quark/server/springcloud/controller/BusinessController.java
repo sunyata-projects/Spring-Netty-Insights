@@ -35,6 +35,7 @@ import org.sunyata.quark.descriptor.BusinessComponentDescriptor;
 import org.sunyata.quark.message.CreateBusinessComponentMessageInfo;
 import org.sunyata.quark.message.RunByManualMessageInfo;
 import org.sunyata.quark.server.springcloud.JsonResponseResult;
+import org.sunyata.quark.server.springcloud.QuarkServerProperties;
 import org.sunyata.quark.store.BusinessComponentInstance;
 import org.sunyata.quark.store.BusinessInstanceStore;
 
@@ -62,6 +63,7 @@ public class BusinessController {
 
     @Autowired
     MessageQueueService messageQueueService;
+
 
     @RequestMapping(value = "/components", method = RequestMethod.GET)
     public JsonResponseResult components() throws Exception {
